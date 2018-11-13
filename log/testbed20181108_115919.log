@@ -1,0 +1,9 @@
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:59:19] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:59:19] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:root:Setting up docker client
+INFO:root:  Building docker image
+INFO:root:  Creating network
+INFO:root:    Warning: Network already exists
+INFO:root:  Removing existing containers
+INFO:root:[u'btc.2', u'btc.1']
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:59:42] "POST /create_network HTTP/1.1" 200 -

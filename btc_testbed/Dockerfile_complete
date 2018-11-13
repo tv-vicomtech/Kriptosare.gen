@@ -1,0 +1,23 @@
+# Use the official Ubuntu 14.04 as a parent image.
+FROM ubuntu:14.04
+
+# Update the package list and install software properties common.
+RUN apt-get update && apt-get install -y software-properties-common
+
+# Add bitcoind from the official PPA
+RUN add-apt-repository --yes ppa:bitcoin/bitcoin && apt-get update
+
+# Install bitcoind and make
+RUN apt-get install -y bitcoind make
+
+# Install additional packages
+RUN apt-get install vim -y
+
+# Export port 18332 (see bitcoin.conf)
+EXPOSE 18332
+
+# Copy bitcoin.conf to the container
+ADD bitcoin.conf /root/.bitcoin/
+
+
+

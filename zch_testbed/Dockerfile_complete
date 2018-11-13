@@ -1,0 +1,33 @@
+# Use the official Ubuntu 14.04 as a parent image.
+FROM ubuntu:14.04
+
+# Update the package list and install software properties common.
+RUN apt-get update && apt-get install -y software-properties-common
+RUN apt-get update 
+RUN apt-get install -y build-essential libc6-dev m4 g++-multilib pkg-config
+
+RUN apt-get install -y autoconf libtool ncurses-dev unzip git python python-zmq 
+RUN apt-get install -y zlib1g-dev wget curl bsdmainutils automake
+
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test && apt-get update
+RUN apt-get install -y g++-4.9
+RUN apt-get install vim -y
+
+RUN apt-get update && apt-get -y install sudo
+
+RUN cd /root && git clone https://github.com/zcash/zcash.git
+RUN mkdir -p /root/.zcash
+RUN cd /root/zcash/zcutil/ && ./fetch-params.sh --testnet
+
+# Install additional packages
+RUN cd /root/zcash/zcutil && ./build.sh -j$(nproc)
+
+
+# Export port 18333 (see zcash.conf)
+EXPOSE 18333
+
+# Copy bitcoin.conf to the container
+ADD zcash.conf /root/.zcash
+
+
+

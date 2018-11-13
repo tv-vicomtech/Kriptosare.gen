@@ -1,0 +1,7 @@
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:36:59] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:36:59] "GET /static/js/bootstrap.min.js HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:36:59] "GET /static/css/bootstrap.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:36:59] "GET /static/css/element.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:36:59] "GET /static/img/shield.png HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:36:59] "GET /static/img/logo.png HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:36:59] "GET /favicon.ico HTTP/1.1" 404 -

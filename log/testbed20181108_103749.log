@@ -1,0 +1,57 @@
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:37:49] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:37:55] "POST /status_network HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:37:55] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:37:55] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:13] "GET /transactionboard HTTP/1.1" 301 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:13] "GET /transactionboard/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:13] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:16] "GET /comingback HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:16] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:17] "POST /listnode HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:17] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:20] "POST /listnode HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:20] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:21] "POST /listnode HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:21] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:24] "POST /listnode HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:25] "POST /listnode HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:25] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:26] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:28] "POST /listnode HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:28] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:30] "POST /listnode HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 10:38:30] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:root:Setting up docker client
+INFO:root:  Building docker image
+INFO:root:  Creating network
+INFO:root:  Removing existing containers
+INFO:root:[]
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:15:28] "POST /create_network HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:30:46] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:30:46] "GET /static/css/bootstrap.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:30:46] "GET /static/css/element.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:30:46] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:30:48] "POST /listnode HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:30:48] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:30:52] "POST /status_network HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:30:52] "GET /static/css/element.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:30:52] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:root:[u'zch.4', u'zch.3', u'zch.2', u'zch.1']
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:38:08] "POST /delete_network HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:38:08] "GET /static/css/bootstrap.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:38:08] "GET /static/css/element.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:38:08] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:root:Setting up docker client
+INFO:root:  Building docker image
+INFO:root:  Creating network
+INFO:root:  Removing existing containers
+INFO:root:[]
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:39:45] "POST /create_network HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:41:18] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:41:19] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:41:21] "POST /status_network HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:41:21] "GET /static/css/bootstrap.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:41:21] "GET /static/css/element.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:41:21] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:43:20] "POST /status_network HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 11:43:20] "GET /favicon.ico HTTP/1.1" 404 -

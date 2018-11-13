@@ -1,0 +1,52 @@
+FROM ubuntu:16.04
+
+RUN apt-get update && apt-get install -y software-properties-common
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y
+
+RUN apt-get update
+RUN apt-get install -y build-essential cmake autoconf libssl-dev libtool libboost-all-dev libboost-filesystem-dev libboost-iostreams-dev
+RUN apt-get update
+RUN apt-get install -y libboost-serialization-dev libboost-thread-dev libboost-test-dev  libssl-dev libjsoncpp-dev
+
+RUN apt-get install -y libcurl4-openssl-dev libjsoncpp-dev libjsonrpccpp-dev libsnappy-dev zlib1g-dev libbz2-dev
+RUN apt-get install -y liblz4-dev libzstd-dev libjemalloc-dev libsparsehash-dev python3-dev python3-pip 
+RUN apt-get install -y git vim net-tools wget libcurl4-openssl-dev gcc-7 g++-7  
+
+RUN apt-get -y update
+
+RUN cd / && wget http://www.cmake.org/files/v3.10/cmake-3.10.1.tar.gz \
+&& tar -xvzf cmake-3.10.1.tar.gz \
+&& cd cmake-3.10.1 \
+&& ./configure \
+&& make \
+&& make install
+
+RUN update-alternatives --install /usr/bin/cmake cmake /usr/local/bin/cmake 1 --force 
+
+RUN cd /opt/ && git clone https://github.com/citp/BlockSci.git \
+&& cd BlockSci/ \
+&& mkdir release \
+&& cd release \
+&& CC=gcc-7 CXX=g++-7 cmake -DCMAKE_BUILD_TYPE=Release ..\
+&& make \
+&& make install 
+RUN cd /opt/BlockSci \
+&& CC=gcc-7 CXX=g++-7 pip3 install -e blockscipy
+
+RUN add-apt-repository --yes ppa:bitcoin/bitcoin && apt-get update
+RUN apt-get install -y bitcoind make
+RUN apt-get update
+RUN apt-get install -y sudo
+#RUN useradd -m bitcoin && echo "bitcoin:bitcoin" | chpasswd && adduser bitcoin sudo
+
+
+# Set the working directory
+WORKDIR /root
+
+# Export port 18332 (see bitcoin.conf)
+EXPOSE 18332 8888
+
+# Copy bitcoin.conf to the container
+ADD bitcoin.conf /root/.bitcoin/
+ADD notebooks/* /opt/BlockSci/Notebooks/
+

@@ -1,0 +1,18 @@
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 12:49:32] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 12:49:32] "GET /static/css/bootstrap.css HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 12:49:32] "GET /static/img/shield.png HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 12:49:32] "GET /static/img/logo.png HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 12:49:32] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 12:49:34] "GET /transactionboard/ HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 12:49:34] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 12:49:35] "GET /comingback HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 12:49:35] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:root:Setting up docker client
+INFO:root:  Building docker image
+INFO:root:  Creating network
+INFO:root:    Warning: Network already exists
+INFO:root:  Removing existing containers
+INFO:root:[u'btc.4', u'btc.3', u'btc.2', u'btc.1']
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 12:50:01] "POST /create_network HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 12:50:05] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [08/Nov/2018 12:50:05] "GET /favicon.ico HTTP/1.1" 404 -

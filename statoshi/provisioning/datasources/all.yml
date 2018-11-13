@@ -1,0 +1,9 @@
+datasources:
+- name: 'graphite'
+  type: 'graphite'
+  access: 'proxy'
+  org_id: 1
+  url: 'http://localhost:82'
+  is_default: true
+  version: 1
+  editable: true

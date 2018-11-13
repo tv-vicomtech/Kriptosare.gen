@@ -1,0 +1,14 @@
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:05] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:05] "GET /static/css/bootstrap.css HTTP/1.1" 200 -
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:05] "GET /static/js/bootstrap.min.js HTTP/1.1" 200 -
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:05] "GET /static/css/element.css HTTP/1.1" 200 -
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:07] "GET /static/img/shield.png HTTP/1.1" 200 -
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:07] "GET /static/img/logo.png HTTP/1.1" 200 -
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:07] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:11] "POST /status_network HTTP/1.1" 200 -
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:11] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:17] "GET /transactionboard HTTP/1.1" 301 -
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:17] "GET /transactionboard/ HTTP/1.1" 200 -
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:18] "GET /favicon.ico HTTP/1.1" 404 -
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:23] "POST /get_info HTTP/1.1" 200 -
+INFO:werkzeug:172.16.200.149 - - [12/Nov/2018 11:38:23] "GET /favicon.ico HTTP/1.1" 404 -
