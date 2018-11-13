@@ -48,7 +48,7 @@ Step 4: Download the Testbed code from this repository
 Ones that all the software are installed, download the Testbed project:
 ```
 cd /
-git clone XXXXXXXX
+git clone https://github.com/tv-vicomtech/titanium_testbed.git
 ```
 Now you are ready to create your own dockerized bitcoin network
 
