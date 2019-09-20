@@ -10,7 +10,6 @@
 $(document).ready(function(){
   $("#statoshi").show();
   $("#blocksci").show();
-
   $("#label_list_node").val("btc");
   $("#label_create_dash").val("btc");
   $("#label_remove_dash").val("btc");
@@ -171,6 +170,10 @@ $(document).ready(function(){
   <div class="form-check">
       <input type="checkbox" class="form-check-input" id="blocksci" name="blocksci" value="B">
       <label class="form-check-label ml-3 font-weight-light" for="blocksci">BLOCKSCI -><samp> port:8868</samp></label>
+  </div>
+  <div class="form-check">
+      <input type="checkbox" class="form-check-input" id="graphsense" name="graphsense" value="G">
+      <label class="form-check-label ml-3 font-weight-light" for="graphsense">GRAPHSENSE -> <samp>btc port:8000, zch port:8010</samp></label>
   </div>
 </th><th></th>
 </form>

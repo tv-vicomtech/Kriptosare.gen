@@ -2,6 +2,7 @@
 
 from btcconf import *
 from zchconf import *
+from oconf import *
 
 import docker
 import socket
@@ -339,6 +340,7 @@ def remove_dock_dashboard(client,cryptotype="btc"):
         remove_containers(client,DOCK_IMAGE_NAME_API_ZCH)
         remove_containers(client,DOCK_MACHINE_NAME_DASHBOARD_ZCH)
 
+
 def blocksci_setup(build_image, remove_existing, cryptotype="btc"):
 
     logging.info('Setting up blocksci client')
@@ -346,7 +348,7 @@ def blocksci_setup(build_image, remove_existing, cryptotype="btc"):
     if build_image:
         logging.info("  Building docker image")
         print(" ********blocksci*****")
-        client.images.build(path="blocksci", tag=DOCK_IMAGE_NAME_BLOCKSCI)
+        client.images.build(path="../blocksci", tag=DOCK_IMAGE_NAME_BLOCKSCI)
     
     if remove_existing:
         nodes_name=[]
@@ -448,3 +450,245 @@ def generate_dock_statoshi(client, cryptotype="btc"):
         ports=port,
         network=network_name)
 
+def grph_setup(build_image, remove_existing, cryptotype="btc"):
+
+    logging.info('Setting up graphsense client')
+    client = docker.from_env()
+    if build_image:
+        logging.info("  Building docker image")
+        #print(" ********client*****")
+        #client.images.build(path="graphsense/bitcoin-client", tag=DOCK_IMAGE_NAME_CLIENT)
+        if(cryptotype=="btc"):
+            print(" ********api*****")
+            client.images.build(path="graphsense/api/btc", tag=DOCK_IMAGE_NAME_API_BTC)
+        elif(cryptotype=="zch"):
+            print(" ********api*****")
+            client.images.build(path="graphsense/api/zch", tag=DOCK_IMAGE_NAME_API_ZCH)
+
+        print(" ********datafeed*****")
+        client.images.build(path="graphsense/data-feed", tag=DOCK_IMAGE_NAME_DATAFEED)
+
+        print(" ********dashboard*****")
+        client.images.build(path="graphsense/graphsense-dashboard", tag=DOCK_IMAGE_NAME_DASHBOARD)
+    
+    if remove_existing:
+        nodes_name=[]
+        namecontainer=[]
+        logging.info("  Removing existing containers")
+        if(cryptotype=="btc"):
+            namecontainer=client.containers.list(filters={'name': DOCK_IMAGE_NAME_CLIENT_BTC})
+            if(len(namecontainer)>0):
+                nodes_name.append(namecontainer)
+            namecontainer=client.containers.list(filters={'name': DOCK_MACHINE_NAME_DATAFEED_BTC})
+            if(len(namecontainer)>0):
+                nodes_name.append(namecontainer)
+            namecontainer=client.containers.list(filters={'name': DOCK_IMAGE_NAME_API_BTC})
+            if(len(namecontainer)>0):
+                nodes_name.append(namecontainer)
+            namecontainer=client.containers.list(filters={'name': DOCK_MACHINE_NAME_DASHBOARD_BTC})
+            if(len(namecontainer)>0):
+                nodes_name.append(namecontainer)
+        elif(cryptotype=="zch"):
+            namecontainer=client.containers.list(filters={'name': DOCK_IMAGE_NAME_CLIENT_ZCH})
+            if(len(namecontainer)>0):
+                nodes_name.append(namecontainer)
+            namecontainer=client.containers.list(filters={'name': DOCK_MACHINE_NAME_DATAFEED_ZCH})
+            if(len(namecontainer)>0):
+                nodes_name.append(namecontainer)
+            namecontainer=client.containers.list(filters={'name': DOCK_IMAGE_NAME_API_ZCH})
+            if(len(namecontainer)>0):
+                nodes_name.append(namecontainer)
+            namecontainer=client.containers.list(filters={'name': DOCK_MACHINE_NAME_DASHBOARD_ZCH})
+            if(len(namecontainer)>0):
+                nodes_name.append(namecontainer)
+        if(len(namecontainer)>0):
+            nodes_name.append(namecontainer)
+        for i in range(0,len(nodes_name)):
+            remove_container_by_name(client,nodes_name[i][0].name)
+    return client
+
+def generate_dock_grph(client, cryptotype="btc"):
+    """
+    Runs a new container.
+    :param client: docker client
+    :param network_name: docker network name
+    :param node_num: node id
+    :return:
+    """
+    containers = client.containers
+
+    if(cryptotype=="btc"):
+        name = DOCK_IMAGE_NAME_CLIENT_BTC
+        mach=DOCK_IMAGE_NAME_BTC
+        CMD = "bitcoind -rest -datadir=/root/.bitcoin"
+        network_name=DOCK_NETWORK_NAME_BTC
+    elif(cryptotype=="zch"):
+        name = DOCK_IMAGE_NAME_CLIENT_ZCH
+        mach=DOCK_IMAGE_NAME_ZCH
+        CMD = "/root/zcash/src/zcashd -datadir=/root/.zcash"
+        network_name=DOCK_NETWORK_NAME_ZCH
+
+    print("Client")
+    containers.run(
+        mach,
+        CMD,
+        name=name,
+        detach=True,
+        network=network_name)
+
+
+    if(cryptotype=="btc"):
+        name = DOCK_MACHINE_NAME_DATAFEED_BTC
+        CMD = "/etc/init.d/script.sh"
+        network_name=DOCK_NETWORK_NAME_BTC
+    elif(cryptotype=="zch"):
+        name = DOCK_MACHINE_NAME_DATAFEED_ZCH
+        CMD = "/etc/init.d/script20.sh"
+        network_name=DOCK_NETWORK_NAME_ZCH
+
+    print("DATAFEED")
+    containers.run(
+        DOCK_IMAGE_NAME_DATAFEED,
+        CMD,
+        name=name,
+        detach=True,
+        network=network_name)
+
+    time.sleep(40)
+
+    if(cryptotype=="btc"):
+        name = DOCK_IMAGE_NAME_API_BTC
+        CMD = "/etc/init.d/script.sh"
+        network_name=DOCK_NETWORK_NAME_BTC
+    elif(cryptotype=="zch"):
+        name = DOCK_IMAGE_NAME_API_ZCH
+        CMD = "/etc/init.d/script.sh"
+        network_name=DOCK_NETWORK_NAME_ZCH
+    
+    print("API")
+    containers.run(
+        name,
+        CMD,
+        name=name,
+        detach=True,
+        network=network_name)
+
+    if(cryptotype=="btc"):
+        name = DOCK_MACHINE_NAME_DASHBOARD_BTC
+        CMD = "/etc/init.d/script.sh"
+        network_name=DOCK_NETWORK_NAME_BTC
+        port = {'8000/tcp':8000}
+    elif(cryptotype=="zch"):
+        name = DOCK_MACHINE_NAME_DASHBOARD_ZCH
+        CMD = "/etc/init.d/script_zch.sh"
+        network_name=DOCK_NETWORK_NAME_ZCH
+        port = {'8000/tcp':8010}
+
+    print("Dashboard")
+    containers.run(
+        DOCK_IMAGE_NAME_DASHBOARD,
+        CMD,
+        name=name,
+        ports=port,
+        detach=True,
+        network=network_name)
+    
+def create_behvnode(client, number=1, name_behv=DOCK_IMAGE_NAME_EX,prefix_behv=DOCK_CONTAINER_NAME_PREFIX_EX):
+    """
+    Runs a new container.
+    :param client: docker client
+    :param network_name: docker network name
+    :param node_num: node id
+    :return:
+    """
+    containers = client.containers
+    namecontainer=client.containers.list(filters={'name': name_behv})
+    num=len(namecontainer)
+    for i in range(0,int(number)):
+        name = prefix_behv + "." + str(i+1+num)
+        containers.run(
+            name_behv,
+            "bash /etc/init.d/script.sh",
+            name=name,
+            detach=True,
+            network=DOCK_NETWORK_NAME_BTC)
+        time.sleep(5)
+        #if(retrive_network(client,DOCK_NETWORK_NAME_ZCH)):
+        #    id_net=get_network_id(client,DOCK_NETWORK_NAME_ZCH)
+        #    net=client.networks.get(id_net)
+        #    net.connect(name)
+
+
+def getalladdress(client,nodelist):
+    dest_add=[]
+    for source in nodelist:
+        dest_add.append(rpc_call(client, source, 'getnewaddress'))
+    return dest_add
+
+def collector_setup(build_image, remove_existing, cryptotype="btc"):
+
+    logging.info('Setting up data collector client')
+    client = docker.from_env()
+    if build_image:
+        logging.info("  Building docker image")
+        #print(" ********client*****")
+        #client.images.build(path="graphsense/bitcoin-client", tag=DOCK_IMAGE_NAME_CLIENT)
+        print(" ********datafeed*****")
+        client.images.build(path="../graphsense/data-feed", tag=DOCK_IMAGE_NAME_DATAFEED)
+
+    
+    if remove_existing:
+        nodes_name=[]
+        namecontainer=[]
+        logging.info("  Removing existing containers")
+        if(cryptotype=="btc"):
+            namecontainer=client.containers.list(filters={'name': DOCK_IMAGE_NAME_CLIENT_BTC})
+            if(len(namecontainer)>0):
+                nodes_name.append(namecontainer)
+            namecontainer=client.containers.list(filters={'name': DOCK_MACHINE_NAME_DATAFEED_BTC})
+            if(len(namecontainer)>0):
+                nodes_name.append(namecontainer)
+        if(len(namecontainer)>0):
+            nodes_name.append(namecontainer)
+        for i in range(0,len(nodes_name)):
+            remove_container_by_name(client,nodes_name[i][0].name)
+    return client
+
+def generate_collector(client, cryptotype="btc"):
+    """
+    Runs a new container.
+    :param client: docker client
+    :param network_name: docker network name
+    :param node_num: node id
+    :return:
+    """
+    containers = client.containers
+
+
+    name = DOCK_IMAGE_NAME_CLIENT_BTC
+    mach=DOCK_IMAGE_NAME_BTC
+    CMD = "bitcoind -rest -datadir=/root/.bitcoin"
+    network_name=DOCK_NETWORK_NAME_BTC
+
+    print("Client")
+    containers.run(
+        mach,
+        CMD,
+        name=name,
+        detach=True,
+        network=network_name)
+
+
+    name = DOCK_MACHINE_NAME_DATAFEED_BTC
+    CMD = "/etc/init.d/script.sh"
+    network_name=DOCK_NETWORK_NAME_BTC
+    port = {'9042':9042}
+
+    print("DATAFEED")
+    containers.run(
+        DOCK_IMAGE_NAME_DATAFEED,
+        CMD,
+        name=name,
+        detach=True,
+        ports=port,
+        network=network_name)

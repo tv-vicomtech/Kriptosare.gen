@@ -29,6 +29,10 @@ def docker_setup(build_image=True, create_docker_network=True, remove_existing=T
     client = docker.from_env()
     if build_image:
         client.images.build(path="../btc_testbed", tag=DOCK_IMAGE_NAME_BTC)
+        client.images.build(path="../exchange", tag=DOCK_IMAGE_NAME_EX)
+        client.images.build(path="../casino", tag=DOCK_IMAGE_NAME_CAS)
+        client.images.build(path="../pool", tag=DOCK_IMAGE_NAME_POOL)
+        client.images.build(path="../mixer", tag=DOCK_IMAGE_NAME_MXR)
 
     if create_docker_network:
         create_network(client)
@@ -49,23 +53,41 @@ if __name__ == '__main__':
         network = True
         remove = True
 
-    client = docker_setup(build_image=build, create_docker_network=network, remove_existing=remove)
- 
+    client = docker_setup(build_image=True, create_docker_network=False, remove_existing=False)
+    G= nx.read_graphml('../graphml/model/model4_400.graphml', unicode)
+
     nodelist=[]
     print "***************************"
     print "*********CREATE CONTAINERS************"
-
     fixname=DOCK_CONTAINER_NAME_PREFIX_BTC+"."
+    number_mx = 13
+    number=len(G.nodes)-number_mx
 
-    create_node(client, DOCK_NETWORK_NAME_BTC, "btc", 10) 
+    #create_node(client, DOCK_NETWORK_NAME_BTC, "btc", number)
+    create_behvnode(client, number_mx, DOCK_IMAGE_NAME_MXR, DOCK_IMAGE_NAME_MXR) #mixer
 
     print "Containers created"
-    time.sleep(10)
     nodelist = get_containers_names(client, fixname)
+    time.sleep(10)
+    for x in G.edges:
+        a = int(x[0])
+        if(a<number_mx):
+            radix=DOCK_CONTAINER_NAME_PREFIX_MXR+"."+str(a+1)
+        else:
+            radix=fixname+str(a-number_mx+1)
 
-    random_connection_container(client,nodelist,fixname,"btc", 8)
 
+        source=radix
+
+        b = int(x[1])
+        if(b<number_mx):
+            radix=DOCK_CONTAINER_NAME_PREFIX_MXR+"."+str(b+1)
+        else:
+            radix=fixname+str(b-number_mx+1)
+
+        destination=radix
+
+        print "connect "+source +" to "+destination
+        r = rpc_create_connection(client, source,destination,"btc")    
     print "End Connections"
-    print "Total: "+str(len(nodelist))+" nodes"
-
-    print "Done"
+    

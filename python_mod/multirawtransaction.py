@@ -5,7 +5,10 @@ from docker_utils import *
 from conf import *
 from random import randint, random
 from decimal import *
-
+from datetime import datetime  
+from datetime import timedelta  
+import numpy
+import random
 
 txlist = []
 
@@ -160,14 +163,13 @@ def create_raw_transaction(client,destiny,origen,amounttosend,new=True, inaddres
     cant = 0 
     data = False
     global txlist
-    balance = rpc_call(client,origen,'getbalance')
-    if balance > 0:
-        print "positive balance"
+    #balance = rpc_call(client,origen,'getbalance')
     addr = get_output_addresses(client,destiny,new,outaddress)
     inaddr=None
     tt=0
     for i in range(0,len(amounttosend)):
         tt=Decimal(amounttosend[i])+Decimal(tt)
+    tt=round(tt, 8)
     if(inaddress is not None):
         inaddr =inaddress[0]
     input_num = 1
@@ -175,19 +177,19 @@ def create_raw_transaction(client,destiny,origen,amounttosend,new=True, inaddres
     for i in range(0,input_num):
         found = False
         original = tt
-        print "unspent" 
+        #print "unspent" 
         data = search_input_in_unspent(client,origen,original,txid,nvout,privkey,money,inaddr)
-        print "unspent found "+str(data)
+        #print "unspent found "+str(data)
         #if (len(data)<3):
         #    print "mempool"
         #    data = search_input_in_mempool(client,origen,original,txid,nvout,privkey,inaddr)
-    print data
+    #print data
     if (len(data)<1):
         allin = False
     else:
         found = True            
-    print allin
-    print found
+    #print allin
+    #print found
     if allin is True and found is True:
         for i in range(0,len(data),4):
             txid[i]= str(data[i][0]).encode("utf-8")
@@ -200,10 +202,19 @@ def create_raw_transaction(client,destiny,origen,amounttosend,new=True, inaddres
         ttmoney=0
         for i in range(0,len(money)):
             ttmoney=ttmoney+money[i]
+        ttmoney=round(ttmoney, 8)
 
-        fee=0.003320
-        rest=ttmoney-tt-Decimal(fee)
-        if(rest>0):
+        fee=0.0003320
+        rest=ttmoney-tt-fee
+        #print "user money: "+str(ttmoney)
+        #print "you want send: "+str(tt)
+        if(rest<0):
+            print "NO money"
+            print "user money: "+str(ttmoney)
+            print "you want send: "+str(tt)
+            print "tx fee: "+str(fee)
+
+        elif(rest>0):
             generate_raw_transaction(client,origen,destiny,txid,nvout,privkey,amounttosend,input_num,addr,rest)
         else:
             generate_raw_transaction(client,origen,destiny,txid,nvout,privkey,amounttosend,input_num,addr)
@@ -215,16 +226,17 @@ def get_output_addresses(client,destiny,new=True ,outaddress=None):
     out = len(destiny)
     if out > 0:
         for i in range(0,out):
-            dest = str(destiny[i])  
+            dest = str(destiny[i])
+            #print dest + " "+str(new)
             if new is True:
-                addr.append(rpc_call(client, dest, 'getnewaddress'))
-                print "TRUE --- "+str(addr)
+                addr.append(rpc_call_newaddress(client,dest,"btc"))
+                #print "TRUE --- "+str(addr)
             else:
                 if outaddress is not None:
                     addr.append(outaddress[i])
                 else:
-                    addr.append(rpc_call(client, dest, 'getaccountaddress', "''"))
-                print "FALSE --- "+str(addr)
+                    addr.append(rpc_call_accountaddress(client,dest,"btc"))
+                #print "FALSE --- "+str(addr)
         #for out in addr:
         #    print out
     return addr                   
@@ -281,76 +293,76 @@ def search_input_in_unspent(client,origen,original,txid,nvout,privkey,money,inad
     found = False
     data = []
     dataswap = []
+    fee=0.0003320
     global txlist
     cant = 0
     unspended = rpc_call(client, origen, 'listunspent')
     cont = len(unspended)
     if (cont > 0):
-        for index in range(0,cont):
-            if (inaddress is not None):
-                in_addr = unspended[index]["address"]
-                cant = unspended[index]["amount"]
-                if (inaddr==inaddress and round(float(cant),8) == round(float(original),8)):
-                    txaddr = unspended[index]["address"]
-                    transid = unspended[index]["txid"]
-                    txout = unspended[index]["vout"]
-                    pkey = rpc_call(client, origen, 'dumpprivkey', '"' + str(txaddr) +'"')
-                    txinlist = str(transid)+"_"+str(txout)
+        # for index in range(0,cont):
+        #     if (inaddress is not None):
+        #         in_addr = unspended[index]["address"]
+        #         cant = unspended[index]["amount"]
+        #         if (inaddr==inaddress and round(float(cant),8) == round(float(original),8)):
+        #             txaddr = unspended[index]["address"]
+        #             transid = unspended[index]["txid"]
+        #             txout = unspended[index]["vout"]
+        #             pkey = rpc_call(client, origen, 'dumpprivkey', '"' + str(txaddr) +'"')
+        #             txinlist = str(transid)+"_"+str(txout)
                    
-                    if not (txinlist in txlist) and pkey!=False:
-                        txid.append(transid)   
-                        nvout.append(txout)
-                        privkey.append(pkey)
-                        money.append(cant)
-                        found=True
-                        txlist.append(txinlist)
-                        data.append([transid,txout,pkey,cant])
-                        break
-            else:
-                cant = unspended[index]["amount"]
-                print cant
-                print original
-                if round(float(cant),8) == round(float(original),8):
-                    txaddr = unspended[index]["address"]
-                    transid = unspended[index]["txid"]
-                    txout = unspended[index]["vout"]
-                    pkey = rpc_call(client, origen, 'dumpprivkey', '"' + str(txaddr) +'"')
-                    txinlist = str(transid)+"_"+str(txout)
+        #             if not (txinlist in txlist) and pkey!=False:
+        #                 txid.append(transid)   
+        #                 nvout.append(txout)
+        #                 privkey.append(pkey)
+        #                 money.append(cant)
+        #                 found=True
+        #                 txlist.append(txinlist)
+        #                 data.append([transid,txout,pkey,cant])
+        #                 break
+        #     else:
+        #         cant = unspended[index]["amount"]
+        #         #print cant
+        #         #print original
+        #         if round(float(cant),8) == round(float(original),8):
+        #             txaddr = unspended[index]["address"]
+        #             transid = unspended[index]["txid"]
+        #             txout = unspended[index]["vout"]
+        #             pkey = rpc_call(client, origen, 'dumpprivkey', '"' + str(txaddr) +'"')
+        #             txinlist = str(transid)+"_"+str(txout)
                     
-                    if not (txinlist in txlist) and pkey!=False:
-                        txid.append(transid)   
-                        nvout.append(txout)
-                        privkey.append(pkey)
-                        money.append(cant)
-                        found=True
-                        txlist.append(txinlist)
-                        data.append([transid,txout,pkey,cant])
+        #             if not (txinlist in txlist) and pkey!=False:
+        #                 txid.append(transid)   
+        #                 nvout.append(txout)
+        #                 privkey.append(pkey)
+        #                 money.append(cant)
+        #                 found=True
+        #                 txlist.append(txinlist)
+        #                 data.append([transid,txout,pkey,cant])
 
-                        break
-        if (found is False):
-            totalamount=0
-            for index in range(0,cont):
-                cant = unspended[index]["amount"]
-                txaddr = unspended[index]["address"]
-                transid = unspended[index]["txid"]
-                txout = unspended[index]["vout"]
-                pkey = rpc_call(client, origen, 'dumpprivkey', '"' + str(txaddr) +'"')
-                txinlist = str(transid)+"_"+str(txout)
-            
-                if not (txinlist in txlist) and pkey!=False:
-                    txid.append(transid)   
-                    nvout.append(txout)
-                    privkey.append(pkey)
-                    money.append(cant)
-                    txlist.append(txinlist)
-                    totalamount=totalamount+cant
-                    dataswap.append([transid,txout,pkey,cant])
+        #                 break
+        # if (found is False):
+        totalamount=0
+        for index in range(0,cont):
+            cant = unspended[index]["amount"]
+            txaddr = unspended[index]["address"]
+            transid = unspended[index]["txid"]
+            txout = unspended[index]["vout"]
+            pkey = rpc_call(client, origen, 'dumpprivkey', '"' + str(txaddr) +'"')
+            txinlist = str(transid)+"_"+str(txout)
+        
+            if not (txinlist in txlist) and pkey!=False:
+                txid.append(transid)   
+                nvout.append(txout)
+                privkey.append(pkey)
+                money.append(cant)
+                txlist.append(txinlist)
+                totalamount=totalamount+cant
+                dataswap.append([transid,txout,pkey,cant])
 
-
-                    if (totalamount>=original):
-                        found=True
-                        data = dataswap
-                        break
+                if (totalamount>=original+fee):
+                    found=True
+                    data=dataswap
+                    break
                         
     return data
 
@@ -417,8 +429,8 @@ def generate_raw_transaction(client,origen,destiny,txid,nvout,privkey,amounttose
         # for a in destiny:
         #     #addr.append(rpc_call(client, a, 'getaccountaddress', '""'))
         #     addr.append(rpc_call(client, a, 'getnewaddress'))
-        for idx in range(0,n_inputs):
-            print'{"txid":"' + str(txid[idx]) + '","vout":'+str(nvout[idx])+'}'
+        #for idx in range(0,n_inputs):
+            #print'{"txid":"' + str(txid[idx]) + '","vout":'+str(nvout[idx])+'}'
         transin = '['
         for idx in range(0,n_inputs):
             transin = transin+'{"txid":"' + str(txid[idx]) + '","vout":'+str(nvout[idx])+'}'
@@ -428,6 +440,7 @@ def generate_raw_transaction(client,origen,destiny,txid,nvout,privkey,amounttose
 
         transout = '{"'
         for idx in range(0,n_outputs):
+            #print str(amounttosend[idx])
             transout = transout+addr[idx]+'":'+str(amounttosend[idx])
             if idx<(n_outputs-1):
                 transout=transout+', "'
@@ -440,7 +453,7 @@ def generate_raw_transaction(client,origen,destiny,txid,nvout,privkey,amounttose
         transout=transout+'}'
         allowhighfees = True
         transtot = transin + "," + transout + ","+str(0)+","+str(allowhighfees)
-        print transtot
+        #print transtot
         rawtx = rpc_call(client, origen, 'createrawtransaction', transtot)
         if(rawtx!=False):
             dectx = rpc_call(client, origen, 'decoderawtransaction', '"' + rawtx + '"')
@@ -456,9 +469,9 @@ def generate_raw_transaction(client,origen,destiny,txid,nvout,privkey,amounttose
             transprivkeys = '"'+str(rawtx)+'",'+str(output)+','+str(privkeys)+',"ALL"'
 
             signrawtx = rpc_call(client, origen, 'signrawtransaction', transprivkeys )
-            print signrawtx
+            #print signrawtx
             #print transprivkeys
-            print "*******    ********"
+            #print "*******    ********"
             if(signrawtx!=False):
                 hextx = signrawtx["hex"]
                 allowhighfees = True
@@ -776,7 +789,7 @@ def mining_blocks(client,source,cryptotype,num_to_gen):
         rpc_call(client, source, 'generate', numberblock)
     elif(cryptotype=="zch"):
         rpc_call(client, source, 'generate', numberblock,ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
-    time.sleep(5)
+    time.sleep(3)
 
     msg.append(numberblock+" blocks are generated")
 
@@ -784,20 +797,19 @@ def mining_blocks(client,source,cryptotype,num_to_gen):
     print str(numberblock)+" blocks are generated"
     return msg
 
-def send_money_to_all(client,nodelist,cryptotype="btc"):
+def send_money_to_all(client,source,nodelist,amount,cryptotype="btc"):
     print "GENERATE transaction "+cryptotype
     info=[]
-    source = nodelist[0]
-    time.sleep(5)
-    print cryptotype
+    time.sleep(1)
+    #print cryptotype
     if(cryptotype=="btc"):
         balance=rpc_call(client, source, 'getbalance',"")
     elif(cryptotype=="zch"):
         balance=rpc_call(client, source, 'getbalance', "",ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
-
+    amount=balance/1000
+    print str(amount)
     if(balance>0.0001):
-        amount = balance/len(nodelist)
-        for i in range(1,len(nodelist)):
+        for i in range(0,len(nodelist)):
             if(cryptotype=="btc"):
                 balance=rpc_call(client, source, 'getbalance',"")
             elif(cryptotype=="zch"):
@@ -809,13 +821,15 @@ def send_money_to_all(client,nodelist,cryptotype="btc"):
                 if(cryptotype=="btc") :
                     dest=rpc_call(client, nodelist[i], 'getnewaddress', "")
                     rpc_call(client, source , 'sendtoaddress', "'" +dest+ "','" + str(amount) + "'")
+                    print source +" send "+ str(amount) +" "+cryptotype+" to "+ dest+ "("+nodelist[i]+")"
                 elif(cryptotype=="zch"):
                     dest=rpc_call(client, nodelist[i], 'getnewaddress', "",ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
                     rpc_call(client, source , 'sendtoaddress', "'" +dest+ "','" + str(amount) + "'",ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
-                
-                print source +" send "+ str(amount) +" "+cryptotype+" to "+ dest+ "("+nodelist[i]+")"
+            else:
+            	print "amount:" +str(amount)+" balance:"+str(balance)
 
         if(cryptotype=="btc") :
+            time.sleep(10)
             rpc_call(client, source, 'generate', '1')
         elif(cryptotype=="zch"):
             rpc_call(client, source , 'generate','1' ,ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
@@ -826,8 +840,10 @@ def send_money_to_all(client,nodelist,cryptotype="btc"):
         info.append("Don't have enough funds to send")
         print "Don't have enough funds to send"
 
-    time.sleep(5)
+    time.sleep(1)
 
     print "********************"
 
     return info
+
+

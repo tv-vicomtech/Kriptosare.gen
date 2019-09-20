@@ -107,6 +107,7 @@ def rpc_create_connection(client, source, dest,crypto="btc",
             rpc_server = get_ip_by_unknown(client, source)
             dest = get_ip_by_unknown(client, dest)
             rpc_port=BTC_RPC_PORT
+            #print rpc_user+" "+rpc_password+" "+rpc_server+ " "+str(rpc_port)+ " "+dest
             rpc_connection = AuthServiceProxy("http://%s:%s@%s:%s" % (rpc_user, rpc_password, rpc_server, rpc_port))
             r=rpc_connection.addnode(dest, "add")
             #print rpc_user+" "+rpc_password+" "+rpc_server+ " "+str(rpc_port)+ " "+dest
@@ -157,7 +158,7 @@ def rpc_create_connection_onetry(client, source, dest,crypto="btc",
             dest = get_ip_by_unknown(client, dest)
             rpc_port=BTC_RPC_PORT
             rpc_connection = AuthServiceProxy("http://%s:%s@%s:%s" % (rpc_user, rpc_password, rpc_server, rpc_port))
-            r=rpc_connection.addnode(dest, "add")
+            r=rpc_connection.addnode(dest, "onetry")
             #print rpc_user+" "+rpc_password+" "+rpc_server+ " "+str(rpc_port)+ " "+dest
 
         elif(crypto=="zch"):
@@ -243,6 +244,7 @@ def rpc_call(client, rpc_server, call, arguments=None,
     """
     try:
         rpc_server = get_ip_by_unknown(client, rpc_server)
+
         rpc_connection = AuthServiceProxy("http://%s:%s@%s:%s" % (rpc_user, rpc_password, rpc_server, rpc_port))
         args = "(" + arguments + ")" if arguments else "()"
         r = eval("rpc_connection." + call + args)
@@ -399,3 +401,24 @@ def rpc_call_dumpprivkey(client,origen,txaddr,cryptotype="btc"):
     elif(cryptotype=="zch"):
         dpk = rpc_call(client, origen, 'dumpprivkey', '"' + str(txaddr) +'"', ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
     return dpk
+
+def rpc_call_alladdress(client,origen,cryptotype="btc"):
+    if(cryptotype=="btc"):
+        addr=rpc_call(client, origen, 'listaddressgroupings', '')
+    elif(cryptotype=="zch"):
+        addr = rpc_call(client, origen, 'listaddressgroupings', '', ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
+    return addr
+
+def rpc_call_getaddressbyaccount(client,origen,cryptotype="btc"):
+    if(cryptotype=="btc"):
+        addr=rpc_call(client, origen, 'getaddressesbyaccount', '""')
+    elif(cryptotype=="zch"):
+        addr = rpc_call(client, origen, 'getaddressesbyaccount', '', ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
+    return addr
+
+def rpc_call_listreceivedbyaddress(client,origen,cryptotype="btc"):
+    if(cryptotype=="btc"):
+        addr=rpc_call(client, origen, 'listreceivedbyaddress', '"0" "true"')
+    elif(cryptotype=="zch"):
+        addr = rpc_call(client, origen, 'listreceivedbyaddress', '"0" "true"', ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
+    return addr

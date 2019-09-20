@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request
 import sys
 import datetime
+from wsgiref.simple_server import make_server
+
 sys.path.insert(0, 'python_mod')
 from docker_utils import *
 from connection import *
@@ -69,7 +71,6 @@ def create_network():
 		message_zch.extend(message)
 	return render_template('index_child.js', message_btc=message_btc,message_zch=message_zch)
 
-
 @app.route('/delete_network', methods=['POST'])
 def delete_network():
 	global message_btc
@@ -84,12 +85,10 @@ def delete_network():
 		remove_containers(client,DOCK_CONTAINER_NAME_PREFIX_ZCH)
 	message.append("********************")
 	message.append("Network Deleted")
-
 	if(cryptotype=="btc"):
 		message_btc.extend(message)
 	elif(cryptotype=="zch"):
 		message_zch.extend(message)
-
 	return render_template('index_child.js', message_btc=message_btc,message_zch=message_zch)
 
 @app.route('/status_network', methods=['POST'])
@@ -106,13 +105,13 @@ def status_network():
 	message_btc.append(str(nbtc)+" BITCOIN nodes")
 	message_btc.append(str(nbtc_v[0])+" BITCOIN statoshi")
 	message_btc.append(str(nbtc_v[1])+" BITCOIN blocksci")
-
+	message_btc.append(str(nbtc_v[2])+" BITCOIN graphsense")
 
 	message_zch.append("*******************")
 	message_zch.append(str(nzch)+" ZCASH nodes")
 	message_zch.append(str(nzch_v[0])+" ZCASH statoshi")
 	message_zch.append(str(nzch_v[1])+" ZCASH blocksci")
-
+	message_zch.append(str(nzch_v[2])+" ZCASH graphsense")
 
 	return render_template('index_child.js',message_btc=message_btc,message_zch=message_zch)
 
@@ -311,7 +310,7 @@ def create_dash():
 	global message_zch
 	checkbox1=request.form.get('statoshi')
 	checkbox2=request.form.get('blocksci')
-
+	checkbox3=request.form.get('graphsense')
 	cryptotype=request.form['label_create_dash']
 	message=[]
 	check=False
@@ -323,6 +322,10 @@ def create_dash():
 	if(checkbox2=="B"):
 		check=True
 		info=generate_blocksci(cryptotype)
+		message.extend(info)
+	if(checkbox3=="G"):
+		check=True
+		info=generate_graphsense(cryptotype)
 		message.extend(info)
 	if(not check):
 		message.append("********************")
@@ -346,12 +349,12 @@ def remove_dashboard():
 		nbtc = check_dock_dashboard(client,"btc")
 		remove_dock_dashboard(client,"btc")
 		message_btc.extend(message)
-		message_btc.append(str(nbtc)+" BTC containers removed [Statoshi, Blocksci]")
+		message_btc.append(str(nbtc)+" BTC containers removed [Statoshi, Blocksci, Graphsense]")
 	elif(cryptotype=="zch"):
 		nzch = check_dock_dashboard(client,"zch")
 		remove_dock_dashboard(client,"zch")
 		message_zch.extend(message)
-		message_zch.append(str(nzch)+" ZCH containers removed [Statoshi, Blocksci]")
+		message_zch.append(str(nzch)+" ZCH containers removed [Statoshi, Blocksci, Graphsense]")
 	return render_template('index_child.js', message_btc=message_btc,message_zch=message_zch)
 
 def generate_blocksci(cryptotype="btc"):
@@ -412,6 +415,37 @@ def generate_statoshi(cryptotype="btc"):
 	message.append("********************")
 	message.append("Statoshi ready")
 	return message
+
+
+def generate_graphsense(cryptotype="btc"):
+	global message_btc
+	global message_zch
+	message=[]
+
+	if(cryptotype=="btc"):
+		client=grph_setup(True, True, cryptotype)
+		fixname=DOCK_CONTAINER_NAME_PREFIX_BTC+"."
+	elif(cryptotype=="zch"):
+		client=grph_setup(True, True, cryptotype)
+		fixname=DOCK_CONTAINER_NAME_PREFIX_ZCH+"."
+
+	generate_dock_grph(client,cryptotype)
+	nodelist=get_containers_names(client, fixname)
+
+	if(len(nodelist)>9):
+		num_conn=8
+	else:
+		num_conn=len(nodelist)
+	time.sleep(5)
+	if(cryptotype=="btc"):
+		random_connection_element(client,nodelist,DOCK_IMAGE_NAME_CLIENT_BTC,fixname,cryptotype)
+	elif(cryptotype=="zch"):
+		random_connection_element(client,nodelist,DOCK_IMAGE_NAME_CLIENT_ZCH,fixname,cryptotype)
+
+	message.append("********************")
+	message.append("Graphsense "+cryptotype+" ready")
+	return message
+
 
 def getinfoblockchainfrom(client,nodelist,cryptotype="btc"):
     strg=[]

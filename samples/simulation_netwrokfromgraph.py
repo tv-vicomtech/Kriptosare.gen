@@ -6,6 +6,8 @@ from btcconf import *
 from rpc_utils import *
 from connection import *
 import networkx as nx
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import logging
 from random import randint
@@ -50,8 +52,7 @@ if __name__ == '__main__':
         network = True
         remove = True
 
-
-    G= nx.read_graphml('../graphml/sample.graphml', unicode)
+    G= nx.read_graphml('../graphml/graph_example.graphml', unicode)
 
     client = docker_setup(build_image=build, create_docker_network=network, remove_existing=remove)
  
@@ -61,17 +62,18 @@ if __name__ == '__main__':
 
     fixname=DOCK_CONTAINER_NAME_PREFIX_BTC+"."
     number=len(G.nodes)
-    #create_node(client, DOCK_NETWORK_NAME_BTC, "btc", number) 
+    create_node(client, DOCK_NETWORK_NAME_BTC, "btc", number) 
 
     print "Containers created"
-    time.sleep(10)
+    time.sleep(15)
     nodelist = get_containers_names(client, fixname)
     connection_from_graph(client,G,nodelist,fixname,"btc")
     #random_connection_container_graph(client,G,nodelist,fixname,"btc", 8)
     print "End Connections"
     #print "Total: "+str(len(nodelist))+" nodes"
-
-    nx.draw(G,with_labels = True)
-    plt.savefig("simple_path.png") # save as png
-    plt.show()
+    f=plt.figure()
+    pos = nx.spring_layout(G,k=0.15,iterations=20)
+    nx.draw(G,pos,with_labels = True)
+    f.savefig("../graphml/simple_path.png") # save as png
+    #plt.show()
     print "Done"
