@@ -1,4 +1,4 @@
-requests==2.18.2
-flask==0.12.2
+requests
+flask
 python-dateutil
 uwsgi
