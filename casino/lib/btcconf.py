@@ -1,0 +1,26 @@
+#Configuration of the network IP, GW, dockername, RPC
+
+DOCK_NETWORK_NAME_BTC = 'bitcoinnet'
+DOCK_NETWORK_SUBNET_BTC ='172.192.0.0/16'
+DOCK_NETWORK_GW_BTC = '172.192.254.254'
+
+DOCK_CONTAINER_NAME_PREFIX_BTC = 'btc'
+DOCK_IMAGE_NAME_STATOSHI = 'btc_statoshi'
+DOCK_IMAGE_NAME_BTC = 'btc'
+DOCK_IMAGE_NAME_MIXER_BTC = 'btc_mixer'
+
+
+DOCK_MACHINE_NAME_BLOCKSCI_BTC = 'btc_blocksci'
+DOCK_IMAGE_NAME_BLOCKSCI= 'blocksci'
+DOCK_IMAGE_NAME_DASHBOARD = 'grph_dashboard'
+DOCK_IMAGE_NAME_CLIENT_BTC= 'btc_client'
+DOCK_IMAGE_NAME_DATAFEED = 'grph_datafeed'
+
+DOCK_MACHINE_NAME_DASHBOARD_BTC = 'btc_dashboard'
+DOCK_MACHINE_NAME_DATAFEED_BTC = 'btc_datafeed'
+DOCK_IMAGE_NAME_API_BTC = 'btc_api'
+
+BTC_RPC_PORT = 18332
+BTC_RPC_USER = 'uab'
+BTC_RPC_PASSWD = 'uabpassword'
+
