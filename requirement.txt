@@ -1,0 +1,9 @@
+docker-py==1.10.6
+docker-pycreds==0.4.0
+Flask==1.1.1
+Jinja2==2.10.3
+networkx==2.3
+numpy==1.17.2
+python-bitcoinrpc==1.0
+requests==2.9.1
+Werkzeug==0.16.0
