@@ -54,11 +54,11 @@ if __name__ == '__main__':
         remove = True
 
     client = docker_setup(build_image=True, create_docker_network=False, remove_existing=False)
-    G= nx.read_graphml('../graphml/model/model4_400.graphml', unicode)
+    G= nx.read_graphml('../graphml/model/model4_400.graphml')
 
     nodelist=[]
-    print "***************************"
-    print "*********CREATE CONTAINERS************"
+    print("***************************")
+    print("*********CREATE CONTAINERS************")
     fixname=DOCK_CONTAINER_NAME_PREFIX_BTC+"."
     number_mx = 13
     number=len(G.nodes)-number_mx
@@ -66,7 +66,7 @@ if __name__ == '__main__':
     #create_node(client, DOCK_NETWORK_NAME_BTC, "btc", number)
     create_behvnode(client, number_mx, DOCK_IMAGE_NAME_MXR, DOCK_IMAGE_NAME_MXR) #mixer
 
-    print "Containers created"
+    print("Containers created")
     nodelist = get_containers_names(client, fixname)
     time.sleep(10)
     for x in G.edges:
@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
         destination=radix
 
-        print "connect "+source +" to "+destination
+        print("connect "+source +" to "+destination)
         r = rpc_create_connection(client, source,destination,"btc")    
-    print "End Connections"
+    print("End Connections")
     
