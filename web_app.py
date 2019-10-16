@@ -18,7 +18,7 @@ global message_zch
 
 @app.route('/')
 def web_app():
-	LOG_FILENAME = 'testbed'+datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+	LOG_FILENAME = 'testbed'+datetime.now().strftime("%Y%m%d_%H%M%S")
 	LOG_FILENAME=LOG_FILENAME+".log"
 	logging.basicConfig(filename="log/"+LOG_FILENAME,level=logging.INFO)
 
