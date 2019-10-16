@@ -84,7 +84,7 @@ def incoming_connection_graph(client,G, destination,netsize,endlimit,step,outcon
                             elif(cryptomoney=="zch"):
                                 r = rpc_create_connection(client, source, destination,cryptomoney,ZCH_RPC_USER,ZCH_RPC_PASSWD,ZCH_RPC_PORT)
                             connection_address.append([source,destination])
-			    G.add_edges_from([(source,destination)])
+                            G.add_edges_from([(source,destination)])
                             #print("choose "+ source+","+destination)
                             find=False
                 idx=((idx)%(endlimit))+1
@@ -117,7 +117,7 @@ def outcoming_connection_graph(client,G,source,netsize,endlimit,step,outconn,inc
                             elif(cryptomoney=="zch"):
                                 r = rpc_create_connection(client, source, destination,cryptomoney,ZCH_RPC_USER,ZCH_RPC_PASSWD,ZCH_RPC_PORT)
                             connection_address.append([source,destination])
-			    G.add_edges_from([(source,destination)])
+                            G.add_edges_from([(source,destination)])
                             #print("choose "+ source+","+destination)
                             find=False
                 idx=((idx)%(endlimit))+1
@@ -134,9 +134,9 @@ def swapfromlist_graph(client,G, list_to_remove,connection_address,destination,c
                     rpc_create_connection(client, connection_address[j][0], destination,cryptomoney)
                     list_to_remove.remove(list_to_remove[i])
                     connection_address.remove([connection_address[j][0],connection_address[j][1]])
- 		    G.remove_edge(connection_address[j][0],connection_address[j][1])
+                    G.remove_edge(connection_address[j][0],connection_address[j][1])
                     connection_address.append([connection_address[j][0],destination])
- 		    G.add_edges_from([(connection_address[j][0],destination)])
+                    G.add_edges_from([(connection_address[j][0],destination)])
                     return True
     return False
 
@@ -307,7 +307,7 @@ def random_connection_element(client,nodelist,nodes_name,fixname,cryptomoney="bt
             destination=fixname+str(idx)
             if(source != destination):
                 if(destination not in alreadyadd):
-                    print source+" "+destination
+                    print(source+" "+destination)
                     r = rpc_create_connection(client,source ,destination ,cryptomoney)
                     alreadyadd.append(destination)
                     find=False
@@ -370,8 +370,8 @@ def connection_from_graph(client,G,nodelist,fixname,cryptomoney="btc",number_e=0
 
         destination=radix
 
-        print "connect "+source +" to "+destination
-    	r = rpc_create_connection(client, source,destination,cryptomoney)
+        print("connect "+source +" to "+destination)
+        r = rpc_create_connection(client, source,destination,cryptomoney)
 
 
             

@@ -2,7 +2,9 @@
 
 from rpc_utils import *
 from docker_utils import *
-from conf import *
+from btcconf import *
+from zchconf import *
+from oconf import *
 from random import randint, random
 from decimal import *
 from datetime import datetime  
@@ -209,10 +211,10 @@ def create_raw_transaction(client,destiny,origen,amounttosend,new=True, inaddres
         #print "user money: "+str(ttmoney)
         #print "you want send: "+str(tt)
         if(rest<0):
-            print "NO money"
-            print "user money: "+str(ttmoney)
-            print "you want send: "+str(tt)
-            print "tx fee: "+str(fee)
+            print("NO money")
+            print("user money: "+str(ttmoney))
+            print("you want send: "+str(tt))
+            print("tx fee: "+str(fee))
 
         elif(rest>0):
             generate_raw_transaction(client,origen,destiny,txid,nvout,privkey,amounttosend,input_num,addr,rest)
@@ -270,8 +272,8 @@ def search_excatly_input_in_unspent(client,origen,original,txid,nvout,privkey,in
                         break
             else:
                 cant = unspended[index]["amount"]
-                print cant
-                print original
+                print(cant)
+                print(original)
                 if round(float(cant),8) == round(float(original),8):
                     txaddr = unspended[index]["address"]
                     transid = unspended[index]["txid"]
@@ -371,10 +373,10 @@ def search_input_in_mempool(client,origen,original,txid,nvout,privkey,inaddress)
         data = False
         global txlist
         cant = 0
-        print origen
+        print(origen)
         mempool = rpc_call(client, origen,'getrawmempool')
         contm = len(mempool)
-        print "mempool "+str(contm)
+        print("mempool "+str(contm))
         if (contm > 0):
             for m in mempool:
                     txraw = rpc_call(client, origen, 'getrawtransaction', "'"+str(m)+"'")
@@ -485,8 +487,8 @@ def send_to_address (client,source,amount,destination,cryptotype="btc",newval=Fa
     if newval is False:
         if(cryptotype=="btc"):
             validation= rpc_call(client, source, 'validateaddress','"'+destination+'"')
-            print destination
-            print validation
+            print(destination)
+            print(validation)
         elif(cryptotype=="zch"):
             validation= rpc_call(client, source, 'validateaddress','"'+destination+'"',ZCH_RPC_USER,ZCH_RPC_PASSWD, ZCH_RPC_PORT)
     else:
@@ -506,7 +508,7 @@ def send_to_address (client,source,amount,destination,cryptotype="btc",newval=Fa
                 tx=rpc_call(client, source, 'sendtoaddress',"'"+destination+"','"+amount+"'")
             elif(cryptotype=="zch"):
                 tx=rpc_call(client, source, 'sendtoaddress',"'"+destination+"','"+amount+"'",ZCH_RPC_USER,ZCH_RPC_PASSWD, ZCH_RPC_PORT)
-            print tx
+            print(tx)
             info.append(source+" send to "+destination+" "+amount+" "+cryptotype)
             info.append("Transaction done!")
             return info
@@ -526,7 +528,7 @@ def generaterandomtransaction(client,nodelist,cryptotype,howmanyblock):
     blcknum=0
     miningNumber=randint(40,150)
     while(blcknum<howmanyblock):
-        print "transaction:"+str(txnum)
+        print("transaction:"+str(txnum))
         origen=[]
         destiny=[]
       
@@ -552,7 +554,7 @@ def generaterandomtransaction(client,nodelist,cryptotype,howmanyblock):
                     rpc_call_sendmondey(client,source,dest,str(amount_random),cryptotype)
                     txnum +=1
                 else:
-                    print "***this wallet("+nodelist[d]+") is skipped!"
+                    print("***this wallet("+nodelist[d]+") is skipped!")
             else:
                 #print "Using a change address"
                 destiny.append(str(nodelist[d]))
@@ -566,7 +568,7 @@ def generaterandomtransaction(client,nodelist,cryptotype,howmanyblock):
             transactions_nin_nout(client,destiny,origen,cryptotype,True)
             txnum +=1
         if(txnum==miningNumber):
-            print "******Mining a new block*****"
+            print("******Mining a new block*****")
             time.sleep(2)
             idx = randint(0,len(nodelist)-1)
             rpc_call_generate(client,nodelist[idx],"1",cryptotype)
@@ -576,18 +578,18 @@ def generaterandomtransaction(client,nodelist,cryptotype,howmanyblock):
             info.append("CREATED block Number: "+str(int(totalblock)+blcknum))
             info.append("* with tx: "+str(txnum))
 
-            print "Block height: " + str(int(totalblock)+blcknum)
-            print "Number of transactions: "+str(txnum)
+            print("Block height: " + str(int(totalblock)+blcknum))
+            print("Number of transactions: "+str(txnum))
             txnum=0
             miningNumber=randint(40,150)
             time.sleep(2)
 
-    print "*****OK*****"
+    print("*****OK*****")
     return info
 
 def test_transaction(client,nodelist):
     for idx in range(0,1):
-        print "transaction:"+str(idx)
+        print("transaction:"+str(idx))
         s = idx
         source = nodelist[s].name
         destiny=[]
@@ -616,11 +618,11 @@ def generatefixtransaction(client,nodelist):
         destiny=[]
 
         for idx in range(0,19):
-            print "transaction:"+str(txnum)
+            print("transaction:"+str(txnum))
             s = idx
             source = nodelist[s].name
             amount= rpc_call(client, source, 'getbalance')
-            print source+" have:"+str(amount)
+            print(source+" have:"+str(amount))
             d = (len(nodelist)-idx-1)
             dest=rpc_call(client, nodelist[d].name, 'getnewaddress')
             if(amount>0.125):
@@ -634,7 +636,7 @@ def generatefixtransaction(client,nodelist):
                 rpc_call(client, source, 'sendtoaddress', "'" +dest+ "','" + str(amount_random) + "'")
                 txnum +=1
         for idx in range(20,35):
-            print "transaction:"+str(txnum)
+            print("transaction:"+str(txnum))
             s = idx
             source = nodelist[s].name
             destiny=[]
@@ -645,7 +647,7 @@ def generatefixtransaction(client,nodelist):
             create_raw_transaction(client,destiny,source,amounttosend)
             txnum +=1
         for idx in range(36,50):
-            print "transaction:"+str(txnum)
+            print("transaction:"+str(txnum))
             s = idx
             source = nodelist[s].name
             destiny=[]
@@ -660,16 +662,16 @@ def generatefixtransaction(client,nodelist):
             create_raw_transaction(client,destiny,source,amounttosend)
             txnum +=1
 
-        print "******Mining a new block*****"
+        print("******Mining a new block*****")
         time.sleep(2)
         rpc_call(client, nodelist[0].name, 'generate', '1')
         numblock = rpc_call(client, nodelist[idx].name, 'getblockcount')
         blcknum +=1
-        print "Block height: " + str(numblock)
-        print "Number of transactions: "+str(txnum)
+        print("Block height: " + str(numblock))
+        print("Number of transactions: "+str(txnum))
         time.sleep(2)
 
-    print "*****OK*****"
+    print("*****OK*****")
 
 def generatetransactionset(client,nodelist):
     txnum = 0
@@ -689,13 +691,13 @@ def generatetransactionset(client,nodelist):
                 nodedest = nodelist[j+1].name
             dest = rpc_call(client,nodedest,'getnewaddress')
             if (rpc_call(client,node,'getbalance')>c):
-                print "Generating transactions: " + str(c) + " BTCs"
+                print("Generating transactions: " + str(c) + " BTCs")
                 rpc_call(client, nodelist[j].name, 'sendtoaddress', "'" +dest+ "','" + str(c) + "'")
                 txnum +=1
                 cont +=1
             time.sleep(2)
             if (cont == 5):
-                print "******Mining a new block*****"
+                print("******Mining a new block*****")
                 time.sleep(2)
                 rpc_call(client, nodelist[nodeind].name, 'generate', '1')
                 numblock = rpc_call(client, nodelist[nodeind].name, 'getblockcount')
@@ -706,10 +708,10 @@ def generatetransactionset(client,nodelist):
                 else:
                     nodeind = 0
                 cont = 0
-                print "Block height: " + str(numblock)
-                print "Number of transactions: "+str(txnum)
+                print("Block height: " + str(numblock))
+                print("Number of transactions: "+str(txnum))
                 #time.sleep(2)
-        print "Using a change address"
+        print("Using a change address")
         for j in range(0,len(nodelist)):
             destiny = []
             origen = str(nodelist[j].name)
@@ -723,7 +725,7 @@ def generatetransactionset(client,nodelist):
             cont +=1
             time.sleep(2)
             if (cont == 5):
-                print "******Mining a new block*****"
+                print("******Mining a new block*****")
                 time.sleep(2)
                 rpc_call(client, nodelist[nodeind].name, 'generate', '1')
                 numblock = rpc_call(client, nodelist[nodeind].name, 'getblockcount')
@@ -734,11 +736,11 @@ def generatetransactionset(client,nodelist):
                 else:
                     nodeind = 0
                 cont = 0
-                print "Block height: " + str(numblock)
-                print "Number of transactions: "+str(txnum)
+                print("Block height: " + str(numblock))
+                print("Number of transactions: "+str(txnum))
                 #time.sleep(2)
         for j in range(0,len(nodelist)):
-            print "N inputs M outputs"
+            print("N inputs M outputs")
             origen = nodelist[j].name
             destiny = []
             if (j < len(nodelist)-3):
@@ -762,27 +764,27 @@ def generatetransactionset(client,nodelist):
             cont +=1
             time.sleep(2)
             if (cont == 5):
-                print "******Mining a new block*****"
+                print("******Mining a new block*****")
                 time.sleep(2)
                 rpc_call(client, nodelist[0].name, 'generate', '1')
                 numblock = rpc_call(client, nodelist[0].name, 'getblockcount')
                 txnum +=1
       
                 cont = 0
-                print "Block height: " + str(numblock)
-                print "Number of transactions: "+str(txnum)
+                print("Block height: " + str(numblock))
+                print("Number of transactions: "+str(txnum))
                 #time.sleep(2)
         time.sleep(10)
         rpc_call(client, nodelist[0].name, 'generate', '1')
         numblock = rpc_call(client, nodelist[0].name, 'getblockcount')
         txnum +=1
-        print "Block height: " + str(numblock)
-        print "Number of transactions: "+ str(txnum)
-        print "*****OK*****"
+        print("Block height: " + str(numblock))
+        print("Number of transactions: "+ str(txnum))
+        print("*****OK*****")
 
 
 def mining_blocks(client,source,cryptotype,num_to_gen):
-    print "MINING BLOCK "+cryptotype
+    print("MINING BLOCK "+cryptotype)
     numberblock = str(num_to_gen)
     msg=[]
     if(cryptotype=="btc") :
@@ -793,12 +795,12 @@ def mining_blocks(client,source,cryptotype,num_to_gen):
 
     msg.append(numberblock+" blocks are generated")
 
-    print "********************"
-    print str(numberblock)+" blocks are generated"
+    print("********************")
+    print(str(numberblock)+" blocks are generated")
     return msg
 
 def send_money_to_all(client,source,nodelist,amount,cryptotype="btc"):
-    print "GENERATE transaction "+cryptotype
+    print("GENERATE transaction "+cryptotype)
     info=[]
     time.sleep(1)
     #print cryptotype
@@ -807,7 +809,6 @@ def send_money_to_all(client,source,nodelist,amount,cryptotype="btc"):
     elif(cryptotype=="zch"):
         balance=rpc_call(client, source, 'getbalance', "",ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
     amount=balance/1000
-    print str(amount)
     if(balance>0.0001):
         for i in range(0,len(nodelist)):
             if(cryptotype=="btc"):
@@ -821,28 +822,28 @@ def send_money_to_all(client,source,nodelist,amount,cryptotype="btc"):
                 if(cryptotype=="btc") :
                     dest=rpc_call(client, nodelist[i], 'getnewaddress', "")
                     rpc_call(client, source , 'sendtoaddress', "'" +dest+ "','" + str(amount) + "'")
-                    print source +" send "+ str(amount) +" "+cryptotype+" to "+ dest+ "("+nodelist[i]+")"
+                    print(source +" send "+ str(amount) +" "+cryptotype+" to "+ dest+ "("+nodelist[i]+")")
                 elif(cryptotype=="zch"):
                     dest=rpc_call(client, nodelist[i], 'getnewaddress', "",ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
                     rpc_call(client, source , 'sendtoaddress', "'" +dest+ "','" + str(amount) + "'",ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
             else:
-            	print "amount:" +str(amount)+" balance:"+str(balance)
+            	print("amount:" +str(amount)+" balance:"+str(balance))
 
         if(cryptotype=="btc") :
             time.sleep(10)
             rpc_call(client, source, 'generate', '1')
         elif(cryptotype=="zch"):
             rpc_call(client, source , 'generate','1' ,ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
-        print "ALL WALLET ARE FULL"
+        print("ALL WALLET ARE FULL")
         info.append("Wallets filled")
 
     else:
         info.append("Don't have enough funds to send")
-        print "Don't have enough funds to send"
+        print("Don't have enough funds to send")
 
     time.sleep(1)
 
-    print "********************"
+    print("********************")
 
     return info
 

@@ -488,13 +488,13 @@ def listunspentfrom(client,nodename,cryptotype="btc"):
     if(len(listunspent)==0):
     	strg.append("Unspent tx not present")
     else:
-		for i in range(0,len(listunspent)):
-		    strg.append("##."+str(i+1))
-		    strg.append("- txid: "+str(listunspent[i]['txid']))
-		    strg.append("- vout: "+str(listunspent[i]['vout']))
-		    strg.append("- address: "+str(listunspent[i]['address']))
-		    strg.append("- amount: "+str(listunspent[i]['amount']))
-		    strg.append("- confimations: "+str(listunspent[i]['confirmations']))
+        for i in range(0,len(listunspent)):
+            strg.append("##."+str(i+1))
+            strg.append("- txid: "+str(listunspent[i]['txid']))
+            strg.append("- vout: "+str(listunspent[i]['vout']))
+            strg.append("- address: "+str(listunspent[i]['address']))
+            strg.append("- amount: "+str(listunspent[i]['amount']))
+            strg.append("- confimations: "+str(listunspent[i]['confirmations']))
 
     return strg
 
