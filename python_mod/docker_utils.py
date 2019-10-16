@@ -73,7 +73,7 @@ def get_ip_by_container_name(client, container_name, network_name=DOCK_NETWORK_N
         return False
     network_names = container.attrs['NetworkSettings']['Networks'].keys()
     #assert len(network_names) == 1, "internal error: multiple network names '{}'".format(network_names)
-    network_name = network_names[0]
+    network_name = list(network_names)[0]
 
     return container.attrs['NetworkSettings']['Networks'][network_name]['IPAddress']
 
