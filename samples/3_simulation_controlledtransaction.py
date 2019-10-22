@@ -14,6 +14,7 @@ from random import randint, random
 import time
 from getopt import getopt
 from mysocket import *
+from sendlib import *
 
 
 if __name__ == '__main__':
@@ -41,7 +42,12 @@ if __name__ == '__main__':
 
     print("**********************************")
     print("Transaction START!")
+    
+    ########################################################################
+    # Send money to a pool
+    ########################################################################
     amount=1
+    send_to_pool(client,nodelist[0],"btc",amount,datetime.datetime.now(),nodelist_pool[0])
     send_to_address(client,nodelist[0],amount,nodelist_pool[0],"btc",True)
     print("Transaction END!")
     mining_blocks(client,nodelist[0],"btc",1)    

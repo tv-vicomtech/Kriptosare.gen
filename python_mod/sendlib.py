@@ -2,6 +2,8 @@ import socket
 import time
 import datetime
 import sys
+from io import BytesIO
+
 sys.path.insert(0, '../python_mod')
 
 from docker_utils import *
@@ -46,3 +48,12 @@ def send_to_casino(client,source,crypto,amount,ttime,host="localhost",port=9999)
 	#print req
 	server_ip=get_ip_by_unknown(client, host,DOCK_NETWORK_NAME_BTC)
 	send_(req,server_ip,port)
+
+def send_to_pool(client,source,crypto,amount,ttime,host="localhost",port=9999):
+	req =""
+	source_ip=get_ip_by_unknown(client, source,DOCK_NETWORK_NAME_BTC)
+	req ='{"source":"'+source_ip+'", "currencies":"'+crypto+'","amount":"'+str(amount)+'","time":"'+ttime.strftime("%Y-%m-%d %H:%M:%S")+'"}'
+	print(req)
+	server_ip=get_ip_by_unknown(client, host,DOCK_NETWORK_NAME_BTC)
+	bytes_req = bytes(req, 'utf-8')
+	send_(bytes_req,server_ip,port)

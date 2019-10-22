@@ -487,16 +487,15 @@ def send_to_address (client,source,amount,destination,cryptotype="btc",newval=Fa
     if newval is False:
         if(cryptotype=="btc"):
             validation= rpc_call(client, source, 'validateaddress','"'+destination+'"')
-            print(destination)
-            print(validation)
         elif(cryptotype=="zch"):
             validation= rpc_call(client, source, 'validateaddress','"'+destination+'"',ZCH_RPC_USER,ZCH_RPC_PASSWD, ZCH_RPC_PORT)
     else:
+        validation = {}
+        validation['isvalid']=True
         if(cryptotype=="btc"):
             destination=rpc_call(client, destination, 'getnewaddress','""')
         elif(cryptotype=="zch"):
             destination=rpc_call(client, destination, 'getnewaddress','""',ZCH_RPC_USER,ZCH_RPC_PASSWD, ZCH_RPC_PORT)
-        validation['isvalid']=True
 
     if(validation['isvalid']):
         if(cryptotype=="btc"):
@@ -505,11 +504,11 @@ def send_to_address (client,source,amount,destination,cryptotype="btc",newval=Fa
             balance= rpc_call(client, source, 'getbalance',"",ZCH_RPC_USER,ZCH_RPC_PASSWD, ZCH_RPC_PORT)
         if(balance>=amount_verify):
             if(cryptotype=="btc"):
-                tx=rpc_call(client, source, 'sendtoaddress',"'"+destination+"','"+amount+"'")
+                tx=rpc_call(client, source, 'sendtoaddress',"'"+destination+"','"+str(amount)+"'")
             elif(cryptotype=="zch"):
-                tx=rpc_call(client, source, 'sendtoaddress',"'"+destination+"','"+amount+"'",ZCH_RPC_USER,ZCH_RPC_PASSWD, ZCH_RPC_PORT)
+                tx=rpc_call(client, source, 'sendtoaddress',"'"+destination+"','"+str(amount)+"'",ZCH_RPC_USER,ZCH_RPC_PASSWD, ZCH_RPC_PORT)
             print(tx)
-            info.append(source+" send to "+destination+" "+amount+" "+cryptotype)
+            info.append(source+" send to "+destination+" "+str(amount)+" "+cryptotype)
             info.append("Transaction done!")
             return info
 
