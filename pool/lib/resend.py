@@ -23,12 +23,12 @@ if __name__ == '__main__':
 
 	while True:
 	    db = MySQLdb.connect(host="localhost",    # your host, usually localhost
-		             user="mixer",         # your username
-		             passwd="mixer",  # your password
+		             user="pool",         # your username
+		             passwd="pool",  # your password
 		             db="db") 
             #print("new")                     
 	    cur = db.cursor()
-	    query = ("SELECT * FROM mixer where idmix>%s")
+	    query = ("SELECT * FROM pool where idpo>%s")
 	    if(len(db_list)>0):
 	    	args = db_list[-1][0]
 	    else:
@@ -41,8 +41,7 @@ if __name__ == '__main__':
             blkhash=""
             blkinfo=""
         multirow=[]
-	    for element in db_list:
-
+        for element in db_list:
 	    	blkhash=rpc_call_blockhash(client,mixer_server,str(element[6]))
 	    	blkinfo=rpc_call_blockinfo(client,mixer_server,blkhash)
 	    	if(blkinfo['confirmations']==-1):
@@ -52,16 +51,16 @@ if __name__ == '__main__':
 	    	else:
 	    		idlist.append(str(element[0]))
 
-	    if(len(multirow)>0):
+        if(len(multirow)>0):
 			transactions_nout(client,multirow,mixer_server)
 
 
-	    db_list=[x for x in db_list if str(x[0]) not in idlist]
-	    cur = db.cursor()
-	    query = ("DELETE FROM mixer WHERE idmix in (%s)"% ','.join(["%s"] * len(idlist)))
-	    if(len(idlist)>0):
+        db_list=[x for x in db_list if str(x[0]) not in idlist]
+        cur = db.cursor()
+        query = ("DELETE FROM pool WHERE idpo in (%s)"% ','.join(["%s"] * len(idlist)))
+        if(len(idlist)>0):
 	    	cur.execute(query, idlist)
 	    	db.commit()
 	    	for elem in idlist:
 	    		idlist.remove(elem)
-	    time.sleep(10)
+        time.sleep(10)

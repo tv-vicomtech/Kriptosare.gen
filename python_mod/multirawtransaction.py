@@ -799,7 +799,7 @@ def mining_blocks(client,source,cryptotype,num_to_gen):
     print(str(numberblock)+" blocks are generated")
     return msg
 
-def send_money_to_all(client,source,nodelist,amount,cryptotype="btc"):
+def send_money_to_all(client,source,nodelist,cryptotype="btc"):
     print("GENERATE transaction "+cryptotype)
     info=[]
     time.sleep(1)
@@ -808,7 +808,7 @@ def send_money_to_all(client,source,nodelist,amount,cryptotype="btc"):
         balance=rpc_call(client, source, 'getbalance',"")
     elif(cryptotype=="zch"):
         balance=rpc_call(client, source, 'getbalance', "",ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
-    amount=balance/1000
+    amount=balance/10
     if(balance>0.0001):
         for i in range(0,len(nodelist)):
             if(cryptotype=="btc"):

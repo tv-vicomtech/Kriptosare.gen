@@ -14,9 +14,12 @@ RUN { \
     && apt-get update && apt-get install -y mysql-server
 
 RUN mkdir /root/lib/
+RUN mkdir /root/behaviour/
 
 ADD bitcoin.conf /root/.bitcoin/
+ADD behaviour/* /root/behaviour/
 ADD script.sh /etc/init.d/
+ADD insert_sql.sh /etc/init.d/
 ADD script_zch.sh /etc/init.d/
 ADD lib/* /root/lib/
 
