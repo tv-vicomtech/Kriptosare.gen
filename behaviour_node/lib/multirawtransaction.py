@@ -437,7 +437,7 @@ def generate_raw_transaction(client,origen,destiny,txid,nvout,privkey,amounttose
 def generate_raw_transaction_behavioural(client,origen,txid,nvout,privkey,amounttosend,input_num,outaddress,rest=None):
         addr = outaddress
         n_inputs = input_num
-        n_outputs = 1
+        n_outputs = len(addr)
         transin = '['
         for idx in range(0,n_inputs):
             transin = transin+'{"txid":"' + str(txid[idx]) + '","vout":'+str(nvout[idx])+'}'
@@ -446,12 +446,19 @@ def generate_raw_transaction_behavioural(client,origen,txid,nvout,privkey,amount
         transin=transin+']'
         amountlessfee=[]
         transout = '{"'
-        for idx in range(0,n_outputs):
-            fee=(random.random()/1000)+0.00001
-            amountlessfee.append(round(amounttosend[idx]-fee, 8))
+
+        fee=(random.random()/1000)+0.00001
+        mny_less_fee=round(amounttosend[0]-fee, 8)
+	    mny=round(mny_less_fee/n_outputs,8)
+	    mny_sum=0
+        for idx in range(0,n_outputs-1):
+            amountlessfee.append(mny)
+            mny_sum=mny_sum+mny
             transout = transout+addr[idx]+'":'+str(amountlessfee[idx])
-            if idx<(n_outputs-1):
-                transout=transout+', "'
+            transout=transout+', "'
+        mny=mny_less_fee-mny_sum
+        amountlessfee.append(mny)
+        transout = transout+addr[n_outputs-1]+'":'+str(amountlessfee[n_outputs-1])
 
         #change direction
         if(rest is not None):
@@ -461,8 +468,11 @@ def generate_raw_transaction_behavioural(client,origen,txid,nvout,privkey,amount
         transout=transout+'}'
         allowhighfees = True
         transtot = transin + "," + transout + ","+str(0)+","+str(allowhighfees)
-        #print transtot
+        #print(transtot)
+
         rawtx = rpc_call(client, origen, 'createrawtransaction', transtot)
+        #print(rawtx)
+
         if(rawtx!=False):
             dectx = rpc_call(client, origen, 'decoderawtransaction', '"' + rawtx + '"')
 
@@ -932,6 +942,8 @@ def simplycase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txin
     for f in range(0,brother):
         addr.append(rpc_call(client, destiny[0], 'getnewaddress'))
 
+    print("generating siblings...")
+
     generate_raw_transaction_behavioural(client,origen,txid,nvout,privkey,[amountosend],input_num,addr,rest_balance)
 
     return amountosend
@@ -945,8 +957,8 @@ def transactions_nout(client,destiny,origen):
     rate=0.03
 
     db = MySQLdb.connect(host="localhost",    # your host, usually localhost
-                     user="pool",         # your username
-                     passwd="pool",  # your password
+                     user="vicom",         # your username
+                     passwd="vicom",  # your password
                      db="db") 
             #print("new")       
 
@@ -973,7 +985,7 @@ def transactions_nout(client,destiny,origen):
         db_sibling=element[8]
         idgen=element[9]
 
-    query = ("SELECT * FROM gen where idgen=%s")
+    query = ("SELECT * FROM synthetic where idgen=%s")
 
     #print db_list
     cur.execute(query,[idgen])
@@ -1045,8 +1057,11 @@ def transactions_nout(client,destiny,origen):
 
                 cur.execute(query,args)
                 db.commit() 
-
-            brother=sibling_gen-db_sibling
+            if(bb>0):
+                brother=sibling_gen-db_sibling-1
+            else:
+                brother=sibling_gen-db_sibling-1
+            
             if(brother<1):
                 brother=1
             sent_b=simplycase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txinlist,bb,brother)
@@ -1072,6 +1087,6 @@ def transactions_nout(client,destiny,origen):
                 db_sibling,
                 idgen,
                 destiny[1])
-
+            print("END tx!")
             cur.execute(query,args)
             db.commit() 

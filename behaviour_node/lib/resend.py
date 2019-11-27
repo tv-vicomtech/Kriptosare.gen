@@ -24,12 +24,12 @@ if __name__ == '__main__':
 	remove_el=[]
 	while True:
 		db = MySQLdb.connect(host="localhost",    # your host, usually localhost
-			user="pool",         # your username
-			passwd="pool",  # your password
+			user="vicom",         # your username
+			passwd="vicom",  # your password
 			db="db") 
             #print("new")                     
 		cur = db.cursor()
-		query = ("SELECT * FROM pool where idpo>%s")
+		query = ("SELECT * FROM received_tx where idrecv>%s")
 		args=-1
 
 		cur.execute(query, [args])
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 				transactions_nout(client,multirow[jj],miner_server)
 
 			cur = db.cursor()
-			query = ("DELETE FROM pool WHERE destination in (%s)"% ','.join(["%s"] * len(remove_el)))
+			query = ("DELETE FROM received_tx WHERE destination in (%s)"% ','.join(["%s"] * len(remove_el)))
 			if(len(remove_el)>0):
 				cur.execute(query, remove_el)
 				db.commit()

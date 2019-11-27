@@ -21,8 +21,8 @@ if __name__ == '__main__':
 	host = socket.gethostname()                           
 	port = 9999
 	db = MySQLdb.connect(host="localhost",    # your host, usually localhost
-						user="pool",         # your username
-						passwd="pool",  # your password
+						user="vicom",         # your username
+						passwd="vicom",  # your password
 						db="db")        # name of the data base
 	# bind to the port
 	serversocket.bind((host, port))                                  
@@ -36,7 +36,7 @@ if __name__ == '__main__':
 		print("message: %s" % msg)
 		json_obj = json.loads(msg)
 		cur = db.cursor()
-		query = ("SELECT * FROM pool where destination=%s")
+		query = ("SELECT * FROM received_tx where destination=%s")
 		args=json_obj['destination']
 		cur.execute(query, [args])
 		db_list=[]
@@ -51,7 +51,7 @@ if __name__ == '__main__':
 
 		if(json_obj is not None):
 			blk = rpc_call_blockcount(client,json_obj['source'],json_obj['currencies'])
-			query = ("insert into pool (source, destination, currencies, amount, confirmations, blk, time) values (%s, %s, %s, %s, %s, %s, %s)")
+			query = ("insert into received_tx (source, destination, currencies, amount, confirmations, blk, time) values (%s, %s, %s, %s, %s, %s, %s)")
 			args = (json_obj['source'],
 					json_obj['destination'],
 					json_obj['currencies'], 		        

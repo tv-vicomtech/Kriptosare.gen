@@ -43,7 +43,7 @@ if __name__ == '__main__':
     time.sleep(5)
     nodelist_pool= get_containers_names(client, DOCK_IMAGE_NAME_POOL+".")
     nodelist_all=nodelist+nodelist_pool
-    for i in range(0,5):
+    for i in range(0,1):
 	    send_money_to_all(client,nodelist[0],nodelist_all,"btc")
 	    time.sleep(5)
     numblock = rpc_call(client, nodelist[0], 'getblockcount')

@@ -7,19 +7,19 @@ sleep 10
 /etc/init.d/mysql start
 sleep 5
 
-PASS="pool"
+PASS="vicom"
 mysql -uroot <<MYSQL_SCRIPT
 CREATE DATABASE db;
-CREATE USER 'pool'@'localhost' IDENTIFIED BY '$PASS';
-GRANT ALL PRIVILEGES ON db.* TO 'pool'@'localhost';
+CREATE USER 'vicom'@'localhost' IDENTIFIED BY '$PASS';
+GRANT ALL PRIVILEGES ON db.* TO 'vicom'@'localhost';
 FLUSH PRIVILEGES;
 MYSQL_SCRIPT
 
 mysql -uroot <<MYSQL_SCRIPT
 USE db;
-DROP TABLE IF EXISTS pool;
-CREATE TABLE pool(
-    idpo INT(32) NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS received_tx;
+CREATE TABLE received_tx(
+    idrecv INT(32) NOT NULL AUTO_INCREMENT,
     source VARCHAR(20),
     destination VARCHAR(45),
     currencies VARCHAR(5),
@@ -28,11 +28,11 @@ CREATE TABLE pool(
     blk INT(6),
     time DATETIME,
     
-    PRIMARY KEY (idpo)
+    PRIMARY KEY (idrecv)
 );
 
-DROP TABLE IF EXISTS gen;
-CREATE TABLE gen(
+DROP TABLE IF EXISTS synthetic;
+CREATE TABLE synthetic(
     idgen INT(32) NOT NULL AUTO_INCREMENT,
     tx_rec INT(10),
     amount_rec VARCHAR(8),
@@ -71,7 +71,9 @@ MYSQL_SCRIPT
 bitcoind -datadir=/root/.bitcoin/ &
 
 sleep 5
-bash /etc/init.d/insert_sql.sh
+
+mysqlimport --fields-terminated-by=, --columns='tx_rec,amount_rec,tx_sent,amount_sent,balance,uniques,sibling' --local -uvicom -pvicom db /root/behaviour/gambling/synthetic.csv
+
 
 sleep 10
 nohup python /root/lib/scanning.py &

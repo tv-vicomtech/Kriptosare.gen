@@ -29,10 +29,8 @@ def docker_setup(build_image=True, create_docker_network=True, remove_existing=T
     client = docker.from_env()
     if build_image:
         client.images.build(path="../btc_testbed", tag=DOCK_IMAGE_NAME_BTC)
-        client.images.build(path="../exchange", tag=DOCK_IMAGE_NAME_EX)
-        client.images.build(path="../casino", tag=DOCK_IMAGE_NAME_CAS)
-        client.images.build(path="../pool", tag=DOCK_IMAGE_NAME_POOL)
-        client.images.build(path="../mixer", tag=DOCK_IMAGE_NAME_MXR)
+        client.images.build(path="../behaviour_node", tag=DOCK_IMAGE_NAME_BEH)
+ 
 
     if create_docker_network:
         create_network(client)
@@ -64,10 +62,16 @@ if __name__ == '__main__':
     number=len(G.nodes)-number_pool
 
     create_node(client, DOCK_NETWORK_NAME_BTC, "btc", number)
-    create_behvnode(client, number_pool, DOCK_IMAGE_NAME_POOL, DOCK_IMAGE_NAME_POOL) #mixer
+    #create_behvnode_gan(client, number_pool, 1, DOCK_CONTAINER_NAME_PREFIX_EX) #mixer
+    #create_behvnode_gan(client, number_pool, 2, DOCK_CONTAINER_NAME_PREFIX_CAS) #mixer
+    #create_behvnode_gan(client, number_pool, 3, DOCK_CONTAINER_NAME_PREFIX_MRK) #mixer
+    create_behvnode_gan(client, number_pool, 4, DOCK_CONTAINER_NAME_PREFIX_POOL) #mixer
+    #create_behvnode_gan(client, number_pool, 5, DOCK_CONTAINER_NAME_PREFIX_MXR) #mixer
+    #create_behvnode_gan(client, number_pool, 6, DOCK_CONTAINER_NAME_PREFIX_SER) #mixer
+
 
     print("Containers created")
-    time.sleep(60)
+    time.sleep(90)
     nodelist = get_containers_names(client, fixname)
     connection_from_graph(client,G,nodelist,fixname,"btc",0,0,0,0,number_pool,0)
     print("End Connections")

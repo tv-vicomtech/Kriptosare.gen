@@ -73,29 +73,9 @@ def get_ip_by_container_name(client, container_name, network_name=DOCK_NETWORK_N
         return False
     network_names = container.attrs['NetworkSettings']['Networks'].keys()
     #assert len(network_names) == 1, "internal error: multiple network names '{}'".format(network_names)
-    network_name = list(network_names)[0]
+    network_name = network_names[0]
 
     return container.attrs['NetworkSettings']['Networks'][network_name]['IPAddress']
-
-def get_ip_by_container_name_with_multiple_interface(client, container_name, network_name=DOCK_NETWORK_NAME_BTC):
-    """
-    Returns the ip of a given container (from its name)
-    :param client: docker client
-    :param container_name: name of the container
-    :param network_name: docker network name
-    :return: ip address
-    """
-    ip=[]
-    try:
-        container = client.containers.get(container_name)
-    except docker.errors.NotFound as err:
-        return False
-    network_names = container.attrs['NetworkSettings']['Networks'].keys()
-    #assert len(network_names) == 1, "internal error: multiple network names '{}'".format(network_names)
-    for network_name in network_names:
-        ip.append(container.attrs['NetworkSettings']['Networks'][network_name]['IPAddress'])
-
-    return ip
 
 
 def is_valid_ip(addr):
@@ -123,7 +103,7 @@ def get_ip_by_unknown(client, host,network_name=DOCK_NETWORK_NAME_BTC):
         host = get_ip_by_container_name(client, host,network_name)
     return host
 
-def create_new_service(client,rep, network_name=DOCK_NETWORK_NAME_BTC):
+def create_new_service(client,network_name=DOCK_NETWORK_NAME_BTC,cryptotype="btc",number=1):
     """
     Runs a new container.
     :param client: docker client
@@ -133,9 +113,21 @@ def create_new_service(client,rep, network_name=DOCK_NETWORK_NAME_BTC):
     """
     network_names=[network_name,]
     print("*********COUNT CONTAINERS************")
-    #endpoint_spec_data={'Ports': [{ 'Protocol': 'tcp', 'PublishedPort': 18332, 'TargetPort': 22001 }]}
     print("Services container ...")
-    client.services.create(DOCK_IMAGE_NAME,command="bitcoind -datadir=/home/bitcoin/.bitcoin",name=DOCK_IMAGE_NAME_BTC,networks=network_names,mode=docker.types.ServiceMode("replicated",rep))
+    if(cryptotype=="btc"):
+	img=DOCK_IMAGE_NAME_BTC
+	name=DOCK_IMAGE_NAME_BTC
+	CMD="bitcoind -datadir=/home/bitcoin/.bitcoin"
+    else:
+	img=DOCK_IMAGE_NAME_ZCH
+	name=DOCK_IMAGE_NAME_ZCH
+	CMD="zcash/src/zcashd -datadir=/home/zcash/.zcash"
+    client.services.create(
+		img,
+		CMD,
+		name=name,
+		networks=network_names,
+		mode=docker.types.ServiceMode("replicated",number))
 
 def create_new_mixer_service(client,rep, network_name=DOCK_NETWORK_NAME_BTC):
     """
@@ -178,7 +170,7 @@ def create_node(client, network_name=DOCK_NETWORK_NAME_BTC, cryptotype="btc", nu
             name = DOCK_IMAGE_NAME_BTC + "." + str(i+1)
             containers.run(
                 DOCK_IMAGE_NAME_BTC,
-                "bitcoind -datadir=/root/.bitcoin",
+                "bitcoind -datadir=/home/bitcoin/.bitcoin",
                 name=name,
                 detach=True,
                 network=network_name)
@@ -187,7 +179,7 @@ def create_node(client, network_name=DOCK_NETWORK_NAME_BTC, cryptotype="btc", nu
             name = DOCK_IMAGE_NAME_ZCH + "." + str(i+1)
             containers.run(
             DOCK_IMAGE_NAME_ZCH,
-            "/root/zcash/src/zcashd -datadir=/root/.zcash",
+            "zcash/src/zcashd -datadir=/home/zcash/.zcash",
             name=name,
             detach=True,
             network=network_name)
@@ -224,17 +216,6 @@ def create_network(client, network_name=DOCK_NETWORK_NAME_BTC, subnetwork=DOCK_N
     except docker.errors.APIError as err:
         logging.info("    Warning: Network already exists")
 
-def get_network_id(client, network_name):
-    """
-    Creates a docker network.
-    :param client: docker client
-    :param network_name: docker network name
-    :return:
-    """
-    net_list=client.networks.list(filters={'name': network_name})
-    if (net_list):
-        return net_list[0].id
-    return False
 
 def get_container_name_by_ip(client, ip, network_name=DOCK_NETWORK_NAME_BTC):
     """
@@ -340,7 +321,6 @@ def remove_dock_dashboard(client,cryptotype="btc"):
         remove_containers(client,DOCK_IMAGE_NAME_API_ZCH)
         remove_containers(client,DOCK_MACHINE_NAME_DASHBOARD_ZCH)
 
-
 def blocksci_setup(build_image, remove_existing, cryptotype="btc"):
 
     logging.info('Setting up blocksci client')
@@ -348,18 +328,20 @@ def blocksci_setup(build_image, remove_existing, cryptotype="btc"):
     if build_image:
         logging.info("  Building docker image")
         print(" ********blocksci*****")
-        client.images.build(path="../blocksci", tag=DOCK_IMAGE_NAME_BLOCKSCI)
+        client.images.build(path="blocksci", tag=DOCK_IMAGE_NAME_BLOCKSCI)
     
     if remove_existing:
         nodes_name=[]
         logging.info("  Removing existing containers")
         if(cryptotype=="btc"):
-            namecontainer=client.containers.list(filters={'name': DOCK_MACHINE_NAME_BLOCKSCI_BTC})
-            if(len(namecontainer)>0):
-                nodes_name.append(namecontainer)
-        #elif(cryptotype=="zch"):
-        #    namecontainer=client.containers.list(filters={'name': DOCK_MACHINE_NAME_BLOCKSCI_ZCH})
-        
+            nodes_name=client.containers.list(filters={'name': DOCK_MACHINE_NAME_BLOCKSCI_BTC})
+        elif(cryptotype=="zch"):
+            nodes_name=client.containers.list(filters={'name': DOCK_MACHINE_NAME_BLOCKSCI_ZCH})
+
+        namecontainer=client.containers.list(filters={'status': "exited"})
+        if(len(namecontainer)>0):
+            nodes_name.append(namecontainer)
+
         for i in range(0,len(nodes_name)):
             remove_container_by_name(client,nodes_name[i][0].name)
     return client
@@ -377,18 +359,18 @@ def generate_dock_blocksci(client, cryptotype="btc"):
         network_name=DOCK_NETWORK_NAME_BTC
         name = DOCK_MACHINE_NAME_BLOCKSCI_BTC
         port = {'8888/tcp':8868}
-        CMD="bash /etc/init.d/script.sh"
+        CMD="bitcoind -datadir=/home/bitcoin/.bitcoin"
     elif(cryptotype=="zch"):
         network_name=DOCK_NETWORK_NAME_ZCH
         name = DOCK_MACHINE_NAME_BLOCKSCI_ZCH
         port = {'8888/tcp':8878}
-        CMD="bash /etc/init.d/script_zch.sh"
+        CMD="zcash/src/zcashd -datadir=/home/zcash/.zcash"
 
     containers = client.containers
 
     print("Blocksci")
     containers.run(
-        DOCK_IMAGE_NAME_BLOCKSCI,
+        name,
         CMD,
         name=name,
         detach=True,
@@ -413,6 +395,10 @@ def statoshi_setup(build_image, remove_existing, cryptotype="btc"):
                 nodes_name.append(namecontainer)
         #elif(cryptotype=="zch"):
             #nodes_name=client.containers.list(filters={'name': DOCK_IMAGE_NAME_STATOSHI})
+
+        namecontainer=client.containers.list(filters={'status': "exited"})
+        if(len(namecontainer)>0):
+            nodes_name.append(namecontainer)
 
         for i in range(0,len(nodes_name)):
             remove_container_by_name(client,nodes_name[i][0].name)
@@ -473,7 +459,6 @@ def grph_setup(build_image, remove_existing, cryptotype="btc"):
     
     if remove_existing:
         nodes_name=[]
-        namecontainer=[]
         logging.info("  Removing existing containers")
         if(cryptotype=="btc"):
             namecontainer=client.containers.list(filters={'name': DOCK_IMAGE_NAME_CLIENT_BTC})
@@ -501,8 +486,11 @@ def grph_setup(build_image, remove_existing, cryptotype="btc"):
             namecontainer=client.containers.list(filters={'name': DOCK_MACHINE_NAME_DASHBOARD_ZCH})
             if(len(namecontainer)>0):
                 nodes_name.append(namecontainer)
+
+        namecontainer=client.containers.list(filters={'status': "exited"})
         if(len(namecontainer)>0):
             nodes_name.append(namecontainer)
+
         for i in range(0,len(nodes_name)):
             remove_container_by_name(client,nodes_name[i][0].name)
     return client
@@ -520,12 +508,12 @@ def generate_dock_grph(client, cryptotype="btc"):
     if(cryptotype=="btc"):
         name = DOCK_IMAGE_NAME_CLIENT_BTC
         mach=DOCK_IMAGE_NAME_BTC
-        CMD = "bitcoind -rest -datadir=/root/.bitcoin"
+        CMD = "bitcoind -rest -datadir=/home/bitcoin/.bitcoin"
         network_name=DOCK_NETWORK_NAME_BTC
     elif(cryptotype=="zch"):
         name = DOCK_IMAGE_NAME_CLIENT_ZCH
         mach=DOCK_IMAGE_NAME_ZCH
-        CMD = "/root/zcash/src/zcashd -datadir=/root/.zcash"
+        CMD = "zcash/src/zcashd -datadir=/home/zcash/.zcash"
         network_name=DOCK_NETWORK_NAME_ZCH
 
     print("Client")
@@ -592,8 +580,8 @@ def generate_dock_grph(client, cryptotype="btc"):
         ports=port,
         detach=True,
         network=network_name)
-    
-def create_behvnode_gan(client, number=1, index = 1, prefix_behv=DOCK_CONTAINER_NAME_PREFIX_EX):
+
+def create_casino(client, network_name=DOCK_NETWORK_NAME_BTC, cryptotype="btc", number=1):
     """
     Runs a new container.
     :param client: docker client
@@ -601,27 +589,29 @@ def create_behvnode_gan(client, number=1, index = 1, prefix_behv=DOCK_CONTAINER_
     :param node_num: node id
     :return:
     """
-    name_behv=DOCK_IMAGE_NAME_BEH
     containers = client.containers
-    namecontainer=client.containers.list(filters={'name': name_behv})
+    namecontainer=client.containers.list(filters={'name': DOCK_IMAGE_NAME_CLIENT_BTC})
     num=len(namecontainer)
-    CMD='/etc/init.d/script'+str(index)+'.sh',
-
-    for i in range(0,int(number)):
-        name = prefix_behv + "." + str(i+1+num)
-        containers.run(
-            name_behv,
-            CMD,
+    if(cryptotype=="btc"):
+        for i in range(0,int(number)):
+            name = DOCK_CONTAINER_NAME_PREFIX_CAS + "." + str(i+1+num)
+            containers.run(
+                DOCK_IMAGE_NAME_CAS,
+                "bash /etc/init.d/script.sh",
+                name=name,
+                detach=True,
+                network=network_name)
+    elif (cryptotype=="zch"):
+        for i in range(0,int(number)):
+            name = DOCK_CONTAINER_NAME_PREFIX_CAS + "." + str(i+1+num)
+            containers.run(
+            DOCK_IMAGE_NAME_CAS,
+            "bash /etc/init.d/script2.sh",
             name=name,
             detach=True,
-            network=DOCK_NETWORK_NAME_BTC)
-        time.sleep(5)
-        #if(retrive_network(client,DOCK_NETWORK_NAME_ZCH)):
-        #    id_net=get_network_id(client,DOCK_NETWORK_NAME_ZCH)
-        #    net=client.networks.get(id_net)
-        #    net.connect(name)
+            network=network_name)
 
-def create_behvnode(client, number=1, name_behv=DOCK_IMAGE_NAME_EX,prefix_behv=DOCK_CONTAINER_NAME_PREFIX_EX):
+def create_exchange(client, network_name=DOCK_NETWORK_NAME_BTC, cryptotype="btc", number=1):
     """
     Runs a new container.
     :param client: docker client
@@ -630,93 +620,23 @@ def create_behvnode(client, number=1, name_behv=DOCK_IMAGE_NAME_EX,prefix_behv=D
     :return:
     """
     containers = client.containers
-    namecontainer=client.containers.list(filters={'name': name_behv})
+    namecontainer=client.containers.list(filters={'name': DOCK_IMAGE_NAME_CLIENT_BTC})
     num=len(namecontainer)
-    for i in range(0,int(number)):
-        name = prefix_behv + "." + str(i+1+num)
-        containers.run(
-            name_behv,
-            "bash /etc/init.d/script.sh",
+    if(cryptotype=="btc"):
+        for i in range(0,int(number)):
+            name = DOCK_CONTAINER_NAME_PREFIX_CAS + "." + str(i+1+num)
+            containers.run(
+                DOCK_IMAGE_NAME_CAS,
+                "bash /etc/init.d/script.sh",
+                name=name,
+                detach=True,
+                network=network_name)
+    elif (cryptotype=="zch"):
+        for i in range(0,int(number)):
+            name = DOCK_CONTAINER_NAME_PREFIX_CAS + "." + str(i+1+num)
+            containers.run(
+            DOCK_IMAGE_NAME_CAS,
+            "bash /etc/init.d/script2.sh",
             name=name,
             detach=True,
-            network=DOCK_NETWORK_NAME_BTC)
-        time.sleep(5)
-        #if(retrive_network(client,DOCK_NETWORK_NAME_ZCH)):
-        #    id_net=get_network_id(client,DOCK_NETWORK_NAME_ZCH)
-        #    net=client.networks.get(id_net)
-        #    net.connect(name)
-
-
-def getalladdress(client,nodelist):
-    dest_add=[]
-    for source in nodelist:
-        dest_add.append(rpc_call(client, source, 'getnewaddress'))
-    return dest_add
-
-def collector_setup(build_image, remove_existing, cryptotype="btc"):
-
-    logging.info('Setting up data collector client')
-    client = docker.from_env()
-    if build_image:
-        logging.info("  Building docker image")
-        #print(" ********client*****")
-        #client.images.build(path="graphsense/bitcoin-client", tag=DOCK_IMAGE_NAME_CLIENT)
-        print(" ********datafeed*****")
-        client.images.build(path="../graphsense/data-feed", tag=DOCK_IMAGE_NAME_DATAFEED)
-
-    
-    if remove_existing:
-        nodes_name=[]
-        namecontainer=[]
-        logging.info("  Removing existing containers")
-        if(cryptotype=="btc"):
-            namecontainer=client.containers.list(filters={'name': DOCK_IMAGE_NAME_CLIENT_BTC})
-            if(len(namecontainer)>0):
-                nodes_name.append(namecontainer)
-            namecontainer=client.containers.list(filters={'name': DOCK_MACHINE_NAME_DATAFEED_BTC})
-            if(len(namecontainer)>0):
-                nodes_name.append(namecontainer)
-        if(len(namecontainer)>0):
-            nodes_name.append(namecontainer)
-        for i in range(0,len(nodes_name)):
-            remove_container_by_name(client,nodes_name[i][0].name)
-    return client
-
-def generate_collector(client, cryptotype="btc"):
-    """
-    Runs a new container.
-    :param client: docker client
-    :param network_name: docker network name
-    :param node_num: node id
-    :return:
-    """
-    containers = client.containers
-
-
-    name = DOCK_IMAGE_NAME_CLIENT_BTC
-    mach=DOCK_IMAGE_NAME_BTC
-    CMD = "bitcoind -rest -datadir=/root/.bitcoin"
-    network_name=DOCK_NETWORK_NAME_BTC
-
-    print("Client")
-    containers.run(
-        mach,
-        CMD,
-        name=name,
-        detach=True,
-        network=network_name)
-
-
-    name = DOCK_MACHINE_NAME_DATAFEED_BTC
-    CMD = "/etc/init.d/script.sh"
-    network_name=DOCK_NETWORK_NAME_BTC
-    port = {'9042':9042}
-
-    print("DATAFEED")
-    containers.run(
-        DOCK_IMAGE_NAME_DATAFEED,
-        CMD,
-        name=name,
-        detach=True,
-        ports=port,
-        network=network_name)
+            network=network_name)

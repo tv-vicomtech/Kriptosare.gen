@@ -481,7 +481,7 @@ def generate_raw_transaction(client,origen,destiny,txid,nvout,privkey,amounttose
                 #print rawtrans
                 rtxid = rpc_call(client, origen, 'sendrawtransaction', str(rawtrans))
 
-def send_to_address (client,source,amount,destination,cryptotype="btc",newval=False):
+def send_to_address_anc_check_balance (client,source,amount,destination,cryptotype="btc",newval=False):
     info=[]
     amount_verify=float(amount)
     if newval is False:
@@ -515,6 +515,35 @@ def send_to_address (client,source,amount,destination,cryptotype="btc",newval=Fa
         else:
             info.append("Wallet not have enough funds!")
             return info
+    else:
+        info.append("Destination address not valid!")
+        return info
+
+def send_to_address (client,source,amount,destination,cryptotype="btc",newval=False):
+    info=[]
+    amount_verify=float(amount)
+    if newval is False:
+        if(cryptotype=="btc"):
+            validation= rpc_call(client, source, 'validateaddress','"'+destination+'"')
+        elif(cryptotype=="zch"):
+            validation= rpc_call(client, source, 'validateaddress','"'+destination+'"',ZCH_RPC_USER,ZCH_RPC_PASSWD, ZCH_RPC_PORT)
+    else:
+        validation = {}
+        validation['isvalid']=True
+        if(cryptotype=="btc"):
+            destination=rpc_call(client, destination, 'getnewaddress','""')
+        elif(cryptotype=="zch"):
+            destination=rpc_call(client, destination, 'getnewaddress','""',ZCH_RPC_USER,ZCH_RPC_PASSWD, ZCH_RPC_PORT)
+
+    if(validation['isvalid']):
+        if(cryptotype=="btc"):
+            tx=rpc_call(client, source, 'sendtoaddress',"'"+destination+"','"+str(amount)+"'")
+        elif(cryptotype=="zch"):
+            tx=rpc_call(client, source, 'sendtoaddress',"'"+destination+"','"+str(amount)+"'",ZCH_RPC_USER,ZCH_RPC_PASSWD, ZCH_RPC_PORT)
+        print(tx)
+        info.append(source+" send to "+destination+" "+str(amount)+" "+cryptotype)
+        info.append("Transaction done!")
+        return info
     else:
         info.append("Destination address not valid!")
         return info

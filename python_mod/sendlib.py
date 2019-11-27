@@ -49,11 +49,31 @@ def send_to_casino(client,source,crypto,amount,ttime,host="localhost",port=9999)
 	server_ip=get_ip_by_unknown(client, host,DOCK_NETWORK_NAME_BTC)
 	send_(req,server_ip,port)
 
-def send_to_pool(client,source,crypto,amount,ttime,host="localhost",port=9999):
+def send_to_pool(client,source,destination,crypto,amount,ttime,host="localhost",port=9999):
 	req =""
 	source_ip=get_ip_by_unknown(client, source,DOCK_NETWORK_NAME_BTC)
-	req ='{"source":"'+source_ip+'", "currencies":"'+crypto+'","amount":"'+str(amount)+'","time":"'+ttime.strftime("%Y-%m-%d %H:%M:%S")+'"}'
+	req ='{"source":"'+source_ip+'", "destination":"'+destination+'", "currencies":"'+crypto+'","amount":"'+str(amount)+'","time":"'+ttime.strftime("%Y-%m-%d %H:%M:%S")+'"}'
 	print(req)
 	server_ip=get_ip_by_unknown(client, host,DOCK_NETWORK_NAME_BTC)
 	bytes_req = bytes(req, 'utf-8')
 	send_(bytes_req,server_ip,port)
+
+def ask_address(client,host="localhost",port=9998):
+	req =""
+	req ='{"source":"ciao"}'	
+	server_ip=get_ip_by_unknown(client, host,DOCK_NETWORK_NAME_BTC)
+	bytes_req = bytes(req, 'utf-8')
+	aa=ask_(bytes_req,server_ip,port)
+	return aa
+
+def ask_(msg,host="localhost",port=9998):
+	#host="localhost"
+	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
+	#port = 9999
+	sock.connect((host, port))
+	sock.sendall(msg)
+	# Receive no more than 1024 bytes
+	tm = sock.recv(1024)
+	print(tm)                                     
+	sock.close()
+	return tm
