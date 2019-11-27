@@ -36,24 +36,37 @@ if __name__ == '__main__':
 
 
     nodelist = get_containers_names(client, DOCK_CONTAINER_NAME_PREFIX_BTC+".")  
+
     nodelist_pool= get_containers_names(client, DOCK_IMAGE_NAME_POOL+".")
+    nodelist_ex = get_containers_names(client, DOCK_IMAGE_NAME_EX+".")
+    nodelist_gam = get_containers_names(client, DOCK_IMAGE_NAME_CAS+".")
+    nodelist_mrk = get_containers_names(client, DOCK_IMAGE_NAME_MRK+".")
+    nodelist_mxr = get_containers_names(client, DOCK_IMAGE_NAME_MXR+".")
+    nodelist_ser = get_containers_names(client, DOCK_IMAGE_NAME_SER+".")
 
-    nodelist_all=nodelist+nodelist_pool
-
-    print("**********************************")
-    print("Transaction START!")
+    nodelist_behavioural=nodelist_pool+ nodelist_ex+nodelist_gam+nodelist_mrk+nodelist_mxr+nodelist_ser
+    nodelist_all=nodelist+nodelist_behavioural
     
     ########################################################################
-    # Send money to a pool
+    # Behavioural transaction
     ########################################################################
-    json_transaction=ask_address(client,nodelist_pool[0])
+    print("**********************************")
+    print("Transaction START!")
+    hh = randint(0,len(nodelist_behavioural)-1)
+    destination_node=nodelist_behavioural[hh]
+    json_transaction= ask_address(client,destination_node)
     json_transaction = json_transaction.decode('utf-8')
     json_transaction = json.loads(json_transaction)
-    destination=json_transaction["address"]
+
+    destination_addr=json_transaction["address"]
     num_tx = json_transaction["tx"]
     amount = json_transaction["amount"]
-    source=nodelist[0]
+
+    hh = randint(0,len(nodelist)-1)
+
+    source=nodelist[hh]
     balance= rpc_call(client, source, 'getbalance')
+    
     if(balance>=float(amount)):
         amount_to_send = round(float(amount)/int(num_tx),8)
     else:
@@ -61,9 +74,9 @@ if __name__ == '__main__':
 
     if(amount_to_send>0.001):
         for i in range(0,int(num_tx)):
-            print(str(i)+" "+destination+" "+str(amount_to_send))
-            send_to_pool(client,source,destination,"btc",amount_to_send,datetime.datetime.now(),nodelist_pool[0])
-            send_to_address(client,source,amount_to_send,destination,"btc",False)
+            print(str(i)+") from: "+source+" to "+destination_node+" ("+destination_addr+") "+str(amount_to_send))
+            send_to_node(client,source,destination_addr,"btc",amount_to_send,datetime.datetime.now(),destination_node)
+            send_to_address(client,source,amount_to_send,destination_addr,"btc",False)
         
         print("Transaction END!")
     else:

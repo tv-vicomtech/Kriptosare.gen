@@ -449,14 +449,14 @@ def generate_raw_transaction_behavioural(client,origen,txid,nvout,privkey,amount
 
         fee=(random.random()/1000)+0.00001
         mny_less_fee=round(amounttosend[0]-fee, 8)
-	    mny=round(mny_less_fee/n_outputs,8)
-	    mny_sum=0
+        mny=round(mny_less_fee/n_outputs,8)
+        mny_sum=0
         for idx in range(0,n_outputs-1):
             amountlessfee.append(mny)
             mny_sum=mny_sum+mny
             transout = transout+addr[idx]+'":'+str(amountlessfee[idx])
             transout=transout+', "'
-        mny=mny_less_fee-mny_sum
+        mny=round(mny_less_fee-mny_sum,8)
         amountlessfee.append(mny)
         transout = transout+addr[n_outputs-1]+'":'+str(amountlessfee[n_outputs-1])
 
@@ -874,7 +874,6 @@ def hardcase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txinli
     addr=[]
     totalamount=0
     for index in range(0,len(txaddr)):
-        print("list_tx:"+list_tx)
         print(txaddr[index] not in list_tx)
 
         if txaddr[index]==destiny[1] and transid[index] not in list_tx:
@@ -900,7 +899,7 @@ def hardcase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txinli
     rest=0
     
     print("rest "+str(rest)+" ttmoney "+str(amountotal)+" amountotal "+str(amountosend))
-
+    print("generating siblings...")
     for f in range(0,brother):
         addr.append(rpc_call(client, destiny[0], 'getnewaddress'))
 
@@ -938,11 +937,12 @@ def simplycase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txin
     amountosend = amountotal-float(rest_balance)
     
     print("rest "+str(rest_balance)+" ttmoney "+str(amountotal)+" amountotal "+str(amountosend))
+    print("generating siblings...")
 
     for f in range(0,brother):
         addr.append(rpc_call(client, destiny[0], 'getnewaddress'))
 
-    print("generating siblings...")
+
 
     generate_raw_transaction_behavioural(client,origen,txid,nvout,privkey,[amountosend],input_num,addr,rest_balance)
 

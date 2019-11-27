@@ -14,6 +14,7 @@ RUN { \
     && apt-get update && apt-get install -y mysql-server
 
 RUN mkdir /root/lib/
+RUN mkdir /root/lib/log
 RUN mkdir /root/behaviour/
 RUN mkdir /root/behaviour/exchange
 RUN mkdir /root/behaviour/gambling

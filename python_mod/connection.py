@@ -339,7 +339,7 @@ def removeoldexchangeconnection(client,exchange_addr,nodelist_zch,crypto):
     for j in range(0,len(nodelist_zch)):
         r=rpc_remove_connection(client, nodelist_zch[j], exchange_addr,crypto)
 
-def connection_from_graph(client,G,nodelist,fixname,cryptomoney="btc",number_e=0,number_c=0,number_mx=0,number_mrk=0,number_p=0,number_s=0):
+def connection_from_graph(client,G,nodelist,fixname,cryptomoney="btc",number_e=0,number_c=0,number_mrk=0,number_p=0,number_mx=0,number_s=0):
     for x in G.edges:
         a = int(x[0])
         if(a+1>number_e+number_c+number_mx+number_mrk+number_p+number_s):

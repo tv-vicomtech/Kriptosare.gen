@@ -41,8 +41,17 @@ if __name__ == '__main__':
     time.sleep(5)
     mining_blocks(client,nodelist[0],"btc",100)
     time.sleep(5)
+    
     nodelist_pool= get_containers_names(client, DOCK_IMAGE_NAME_POOL+".")
-    nodelist_all=nodelist+nodelist_pool
+    nodelist_ex = get_containers_names(client, DOCK_IMAGE_NAME_EX+".")
+    nodelist_gam = get_containers_names(client, DOCK_IMAGE_NAME_CAS+".")
+    nodelist_mrk = get_containers_names(client, DOCK_IMAGE_NAME_MRK+".")
+    nodelist_mxr = get_containers_names(client, DOCK_IMAGE_NAME_MXR+".")
+    nodelist_ser = get_containers_names(client, DOCK_IMAGE_NAME_SER+".")
+
+    #nodelist_all=nodelist+nodelist_pool+ nodelist_ex+nodelist_gam+nodelist_mrk+nodelist_mxr+nodelist_ser
+    nodelist_all=nodelist
+
     for i in range(0,1):
 	    send_money_to_all(client,nodelist[0],nodelist_all,"btc")
 	    time.sleep(5)
@@ -51,6 +60,8 @@ if __name__ == '__main__':
     print("**************************************")
     print("NETWORK STATISTICS")
     print("Actual Block height: " + str(numblock))
+    
+    nodelist_all=nodelist+nodelist_pool+ nodelist_ex+nodelist_gam+nodelist_mrk+nodelist_mxr+nodelist_ser
     for i in range(0,len(nodelist_all)):
     	print("node: " + str(nodelist_all[i])+" balance: "+ str(rpc_call(client, nodelist_all[i], 'getbalance')))
 

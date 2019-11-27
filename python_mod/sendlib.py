@@ -49,7 +49,7 @@ def send_to_casino(client,source,crypto,amount,ttime,host="localhost",port=9999)
 	server_ip=get_ip_by_unknown(client, host,DOCK_NETWORK_NAME_BTC)
 	send_(req,server_ip,port)
 
-def send_to_pool(client,source,destination,crypto,amount,ttime,host="localhost",port=9999):
+def send_to_node(client,source,destination,crypto,amount,ttime,host="localhost",port=9999):
 	req =""
 	source_ip=get_ip_by_unknown(client, source,DOCK_NETWORK_NAME_BTC)
 	req ='{"source":"'+source_ip+'", "destination":"'+destination+'", "currencies":"'+crypto+'","amount":"'+str(amount)+'","time":"'+ttime.strftime("%Y-%m-%d %H:%M:%S")+'"}'
@@ -74,6 +74,5 @@ def ask_(msg,host="localhost",port=9998):
 	sock.sendall(msg)
 	# Receive no more than 1024 bytes
 	tm = sock.recv(1024)
-	print(tm)                                     
 	sock.close()
 	return tm
