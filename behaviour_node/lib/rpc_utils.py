@@ -262,9 +262,9 @@ def rpc_call_accountaddress(client,source,cryptotype="btc"):
 
 def rpc_call_newaddress(client,source,cryptotype="btc"):
     if(cryptotype=="btc"):
-        new_address=rpc_call(client, source, "getaccountaddress","''")
+        new_address=rpc_call(client, source, "getnewaddress","''")
     elif(cryptotype=="zch"):
-        new_address=rpc_call(client, source, "getaccountaddress","''",ZCH_RPC_USER, ZCH_RPC_PASSWD,ZCH_RPC_PORT)
+        new_address=rpc_call(client, source, "getnewaddress","''",ZCH_RPC_USER, ZCH_RPC_PASSWD,ZCH_RPC_PORT)
     return new_address
 
 def rpc_call_listunspent(client,source,cryptotype="btc"):

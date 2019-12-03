@@ -11,7 +11,8 @@ import os
 
 def nodescan():
 	list_el=[]
-	for ping in range(1,15): 
+	endingping=15
+	for ping in range(1,endingping): 
 		address = "172.192.0." + str(ping)
 		devnull = open(os.devnull, 'w')
 		res = subprocess.call(['ping', '-c', '1', address], stdout=devnull, stderr=devnull) 
@@ -49,6 +50,7 @@ if __name__ == '__main__':
 				find=True
 			if(not find):
 				to_add.append(nodescan[jj])
+
 		cur = db.cursor()
 		query = ('INSERT INTO user (IP) values %s'% ','.join(['(%s)'] *len(to_add)))
 

@@ -60,13 +60,12 @@ if __name__ == '__main__':
 					if(blkinfo['confirmations']==-1):
 						pass
 					elif(blkinfo['confirmations']>=element[5]):
-						ii=randint(0,len(nodescan)-1)
 						#destination=rpc_call_newaddress(client,nodescan[ii],element[3])
 						cnt=0
 						for gg in add_list:
 							if(gg==element[2]):
 								cnt=cnt+1
-						multirow.append([nodescan[ii],element[2],cnt])
+						multirow.append([nodescan,element[2],cnt])
 						remove_el.append(str(element[2]))
 
 

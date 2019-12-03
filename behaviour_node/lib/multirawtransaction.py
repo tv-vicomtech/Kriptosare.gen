@@ -864,7 +864,7 @@ def send_money_to_all(client,source,nodelist,amount,cryptotype="btc"):
 
     return info
 
-def hardcase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txinlist,brother):
+def hardcase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txinlist,brother,db):
     data=[]
     nvout=[]
     privkey=[]
@@ -900,14 +900,42 @@ def hardcase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txinli
     
     print("rest "+str(rest)+" ttmoney "+str(amountotal)+" amountotal "+str(amountosend))
     print("generating siblings...")
-    for f in range(0,brother):
-        addr.append(rpc_call(client, destiny[0], 'getnewaddress'))
+
+    ee= randint(1,3)
+    num=int(brother/ee)
+    for i in range(0,ee):
+        hh=randint(0,len(destiny[0])-1)
+        db_new = MySQLdb.connect(host=destiny[0][hh],    # your host, usually localhost
+                 user="vicom",         # your username
+                 passwd="vicom",  # your password
+                 db="db") 
+        #print("new")      
+
+        if(i==ee-1):
+            num=int(brother-(i*num))
+            
+        cur_new = db_new.cursor()
+        query = ("SELECT * FROM destination limit %s")
+        cur_new.execute(query,[num])
+        db_add=[]
+        for element in cur_new.fetchall():
+            db_add.append(element[1])
+
+        db_add_rem=[]
+        for element in range(0,len(db_add)/2):
+            db_add_rem.append(str(db_add[element]))
+        cur_new = db_new.cursor()
+        query = ("DELETE FROM destination WHERE address in (%s)"% ','.join(["%s"] * len(db_add_rem)))
+        cur_new.execute(query,db_add_rem)
+        db_new.commit()
+
+        addr=addr+db_add
 
     generate_raw_transaction_behavioural(client,origen,txid,nvout,privkey,[amountosend],input_num,addr)
 
     return amountosend,list_tx
 
-def simplycase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txinlist,rest_balance,brother):
+def simplycase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txinlist,rest_balance,brother,db):
     data=[]
     nvout=[]
     privkey=[]
@@ -939,17 +967,44 @@ def simplycase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txin
     print("rest "+str(rest_balance)+" ttmoney "+str(amountotal)+" amountotal "+str(amountosend))
     print("generating siblings...")
 
-    for f in range(0,brother):
-        addr.append(rpc_call(client, destiny[0], 'getnewaddress'))
+    ee= randint(1,2)
+    num=int(brother/ee)
+    for i in range(0,ee):
+        hh=randint(0,len(destiny[0])-1)
+        db_new = MySQLdb.connect(host=destiny[0][hh],    # your host, usually localhost
+                 user="vicom",         # your username
+                 passwd="vicom",  # your password
+                 db="db") 
+        #print("new")      
 
+        if(i==ee-1):
+            num=int(brother-(i*num))
+            
+        cur_new = db_new.cursor()
+        query = ("SELECT * FROM destination limit %s")
+        cur_new.execute(query,[num])
 
+        db_add=[]
+        for element in cur_new.fetchall():
+            db_add.append(element[1])
+
+        db_add_rem=[]
+        for element in range(0,len(db_add)/2):
+            db_add_rem.append(str(db_add[element]))
+        cur_new = db_new.cursor()
+        query = ("DELETE FROM destination WHERE address in (%s)"% ','.join(["%s"] * len(db_add_rem)))
+        cur_new.execute(query,db_add_rem)
+        db_new.commit()
+
+        addr=addr+db_add
 
     generate_raw_transaction_behavioural(client,origen,txid,nvout,privkey,[amountosend],input_num,addr,rest_balance)
+
 
     return amountosend
 
 def transactions_nout(client,destiny,origen):
-    #destiny[0] name destination
+    #destiny[0]  vector destination
     #destiny[1] address UTXO
     #destiny[2] num_input
     amountotal=0
@@ -1031,7 +1086,7 @@ def transactions_nout(client,destiny,origen):
             brother=int(sibling_gen/db_list_all[0][3])
 
             for i in range(0, int(db_list_all[0][3])-1):
-                sent_a,list_tx=hardcase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txinlist,brother)
+                sent_a,list_tx=hardcase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txinlist,brother,db)
                 db_tx_sent=db_tx_sent+1
                 db_amount_sent=float(db_amount_sent)+float(sent_a)
                 db_balance=float(db_amount_rec)-float(db_amount_sent)
@@ -1042,8 +1097,6 @@ def transactions_nout(client,destiny,origen):
                     db_unique=0
                 else:
                     db_unique=1
-
-                query=("UPDATE transaction SET tx_rec=%s, amount_rec=%s, tx_sent=%s,amount_sent=%s,balance=%s,uniques=%s,sibling=%s,idgen=%s WHERE address=%s")            
                 
                 args = (db_tx_rcv,
                     db_amount_rec,
@@ -1060,11 +1113,11 @@ def transactions_nout(client,destiny,origen):
             if(bb>0):
                 brother=sibling_gen-db_sibling-1
             else:
-                brother=sibling_gen-db_sibling-1
+                brother=sibling_gen-db_sibling
             
             if(brother<1):
                 brother=1
-            sent_b=simplycase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txinlist,bb,brother)
+            sent_b=simplycase(client,destiny,origen,list_tx,cant,txaddr,transid,txout,pkey,txinlist,bb,brother,db)
 
             db_tx_sent=db_tx_sent+1
             db_amount_sent=float(db_amount_sent)+float(sent_b)

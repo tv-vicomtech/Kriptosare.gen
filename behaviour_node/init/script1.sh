@@ -2,6 +2,7 @@
 chown -R mysql:mysql /var/lib/mysql /var/run/mysqld
 
 sed -i '42 a  innodb_use_native_aio = 0' /etc/mysql/my.cnf
+sed -i 's/bind-address.*/bind-address = 0.0.0.0/g' /etc/mysql/my.cnf
 sleep 10
 
 /etc/init.d/mysql start
@@ -10,8 +11,8 @@ sleep 5
 PASS="vicom"
 mysql -uroot <<MYSQL_SCRIPT
 CREATE DATABASE db;
-CREATE USER 'vicom'@'localhost' IDENTIFIED BY '$PASS';
-GRANT ALL PRIVILEGES ON db.* TO 'vicom'@'localhost';
+CREATE USER 'vicom'@'%' IDENTIFIED BY '$PASS';
+GRANT ALL PRIVILEGES ON db.* TO 'vicom'@'%';
 FLUSH PRIVILEGES;
 MYSQL_SCRIPT
 
@@ -29,6 +30,13 @@ CREATE TABLE received_tx(
     time DATETIME,
     
     PRIMARY KEY (idrecv)
+);
+
+CREATE TABLE destination(
+    iddest INT(32) NOT NULL AUTO_INCREMENT,
+    address VARCHAR(45),
+    IP VARCHAR(16),
+    PRIMARY KEY (iddest)
 );
 
 DROP TABLE IF EXISTS synthetic;
@@ -78,5 +86,6 @@ sleep 10
 nohup python /root/lib/scanning.py & > /root/lib/log/log.scanning.txt
 nohup python /root/lib/listener_address.py & > /root/lib/log/log.listeneraddress.txt
 nohup python /root/lib/resend.py & > /root/lib/log/log.resend.txt
+nohup python /root/lib/generate_destination.py & > /root/lib/log/log.generate.txt
 nohup python /root/lib/listener.py 
 

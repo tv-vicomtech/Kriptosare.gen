@@ -163,6 +163,7 @@ def run_new_nodes(client, n):
     for _ in range(n):
         run_new_node(client)
 
+
 def create_node(client, network_name=DOCK_NETWORK_NAME_BTC, cryptotype="btc", number=1):
     """
     Runs a new container.
@@ -178,10 +179,11 @@ def create_node(client, network_name=DOCK_NETWORK_NAME_BTC, cryptotype="btc", nu
             name = DOCK_IMAGE_NAME_BTC + "." + str(i+1)
             containers.run(
                 DOCK_IMAGE_NAME_BTC,
-                "bitcoind -datadir=/root/.bitcoin",
+                "/etc/init.d/script.sh",
                 name=name,
                 detach=True,
                 network=network_name)
+                
     elif (cryptotype=="zch"):
         for i in range(0,int(number)):
             name = DOCK_IMAGE_NAME_ZCH + "." + str(i+1)
@@ -191,6 +193,27 @@ def create_node(client, network_name=DOCK_NETWORK_NAME_BTC, cryptotype="btc", nu
             name=name,
             detach=True,
             network=network_name)
+
+
+def create_node_import(client, network_name=DOCK_NETWORK_NAME_BTC, cryptotype="btc", number=1):
+    """
+    Runs a new container.
+    :param client: docker client
+    :param network_name: docker network name
+    :param node_num: node id
+    :return:
+    """
+
+    containers = client.containers
+    if(cryptotype=="btc"):
+        for i in range(0,int(number)):
+            name = DOCK_IMAGE_NAME_BTC + "." + str(i+1)
+            containers.run(
+                DOCK_IMAGE_NAME_BTC,
+                "/etc/init.d/script_import.sh",
+                name=name,
+                detach=True,
+                network=network_name)
 
 def retrive_network(client, network_name):
     """
