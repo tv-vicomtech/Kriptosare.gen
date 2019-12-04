@@ -21,35 +21,29 @@ if __name__ == '__main__':
 	user="vicom",         # your username
 	passwd="vicom",  # your password
 	db="db") 
-	while True:
-		end=False
-		cur = db.cursor()
-		query = ("SELECT COUNT(*) FROM destination")
-		cur.execute(query)
-		
-		lenght=0
-		for element in cur.fetchall():
-			lenght=int(element[0])
-
-		s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		s.connect(("8.8.8.8", 80))
-		ip=s.getsockname()[0]
-		s.close()
-
-		add=[]
-		end=False
-		maxi=100000
-		while(lenght<=maxi):
+	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	s.connect(("8.8.8.8", 80))
+	ip=s.getsockname()[0]
+	s.close()
+	end=False
+	lenght=0
+	add=[]
+	maxi=100000
+	cur = db.cursor()
+	while(True):
+		try:
 			nn=rpc_call(client, ip, "getnewaddress","''")
-			if(nn!="" and nn!=False and nn!=None and nn!=0):
-				add=[nn,ip]
-				query = ('INSERT INTO destination (address,IP) values (%s,%s)')
-				end = True
-				cur.execute(query, add)
-				db.commit()
-				f = open("address.csv", "a")
-				f.write(str(nn)+","+str(ip)+"\n")
-				f.close()
-				lenght=lenght+1
-		if(end):
+		except:
+			nn=0
+		if(nn!="" and nn!=False and nn!=None and nn!=0):
+			add=[nn,ip]
+			query = ('INSERT INTO destination (address,IP) values (%s,%s)')
+			end = True
+			cur.execute(query, add)
+			db.commit()
+			f = open("address.csv", "a")
+			f.write(str(nn)+","+str(ip)+"\n")
+			f.close()
+			lenght=lenght+1
+		if(lenght>=maxi):
 			rpc_call(client,ip,"dumpwallet","'walletdump'")

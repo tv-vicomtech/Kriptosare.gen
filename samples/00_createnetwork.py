@@ -27,11 +27,6 @@ def tool_bar(tt):
 
     sys.stdout.write("]\n") # this ends the progress bar
 
-def starting_generator(client):
-    containers = client.containers.list()
-    for uuid in containers:
-        uuid.exec_run("python /root/lib/generate_destination.py &",detach=True)
-
 
 def docker_setup(build_image=True, create_docker_network=True, remove_existing=True):
     """
@@ -114,4 +109,7 @@ if __name__ == '__main__':
     print("Containers created")
     print("Wait 300 seconds...")
     tool_bar(300)
+    nodelist = get_containers_names(client, fixname)
+    connection_from_graph(client,G,nodelist,fixname,"btc",number_ex,number_cas,number_mrk,number_pool,number_mxr,number_ser)
+    print("End Connections")
     print("End!")
