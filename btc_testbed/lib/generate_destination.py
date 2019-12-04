@@ -3,13 +3,14 @@ import time
 import json
 import datetime
 import MySQLdb
-import numpy as np
 from random import randint
 from decimal import *
 import subprocess
 import docker
 from rpc_utils import *
 import os 
+
+
 
 if __name__ == '__main__':
     # name of the data base
@@ -20,7 +21,6 @@ if __name__ == '__main__':
 	user="vicom",         # your username
 	passwd="vicom",  # your password
 	db="db") 
-	#time.sleep(10)
 	while True:
 		end=False
 		cur = db.cursor()
@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
 		add=[]
 		end=False
-		maxi=10
+		maxi=100000
 		while(lenght<=maxi):
 			nn=rpc_call(client, ip, "getnewaddress","''")
 			if(nn!="" and nn!=False and nn!=None and nn!=0):
@@ -51,13 +51,5 @@ if __name__ == '__main__':
 				f.write(str(nn)+","+str(ip)+"\n")
 				f.close()
 				lenght=lenght+1
-				if(lenght%1000==0):
-					f = open("info.txt", "a")
-					f.write(str(lenght)+" addresses generated\n")
-					f.close()
 		if(end):
 			rpc_call(client,ip,"dumpwallet","'walletdump'")
-		if(end):
-			f = open("info.txt", "a")
-			f.write("Generation done..sleep\n")
-			f.close()

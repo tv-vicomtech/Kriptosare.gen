@@ -164,7 +164,7 @@ def run_new_nodes(client, n):
         run_new_node(client)
 
 
-def create_node(client, network_name=DOCK_NETWORK_NAME_BTC, cryptotype="btc", number=1):
+def create_node(client, network_name=DOCK_NETWORK_NAME_BTC, num=1):
     """
     Runs a new container.
     :param client: docker client
@@ -172,27 +172,35 @@ def create_node(client, network_name=DOCK_NETWORK_NAME_BTC, cryptotype="btc", nu
     :param node_num: node id
     :return:
     """
-
+    print(str(intit)+" *** "+ str(ending))
     containers = client.containers
-    if(cryptotype=="btc"):
-        for i in range(0,int(number)):
-            name = DOCK_IMAGE_NAME_BTC + "." + str(i+1)
-            containers.run(
-                DOCK_IMAGE_NAME_BTC,
-                "/etc/init.d/script.sh",
-                name=name,
-                detach=True,
-                network=network_name)
-                
-    elif (cryptotype=="zch"):
-        for i in range(0,int(number)):
-            name = DOCK_IMAGE_NAME_ZCH + "." + str(i+1)
-            containers.run(
-            DOCK_IMAGE_NAME_ZCH,
-            "/root/zcash/src/zcashd -datadir=/root/.zcash",
+    for i in range(0,int(num)):
+        name = DOCK_CONTAINER_NAME_PREFIX_BTC + "." + str(i+1)
+        containers.run(
+            DOCK_IMAGE_NAME_BTC,
+            "/etc/init.d/script.sh",
             name=name,
             detach=True,
             network=network_name)
+
+def create_node_nocmd(client, network_name=DOCK_NETWORK_NAME_BTC, intit=0,ending=10):
+    """
+    Runs a new container.
+    :param client: docker client
+    :param network_name: docker network name
+    :param node_num: node id
+    :return:
+    """
+    print(str(intit)+" *** "+ str(ending))
+    containers = client.containers
+    for i in range(int(intit),int(ending)):
+        name = DOCK_CONTAINER_NAME_PREFIX_BTC + "." + str(i+1)
+        containers.run(
+            DOCK_IMAGE_NAME_BTC,
+            name=name,
+            detach=True,
+            network=network_name)
+                
 
 
 def create_node_import(client, network_name=DOCK_NETWORK_NAME_BTC, cryptotype="btc", number=1):
@@ -207,7 +215,7 @@ def create_node_import(client, network_name=DOCK_NETWORK_NAME_BTC, cryptotype="b
     containers = client.containers
     if(cryptotype=="btc"):
         for i in range(0,int(number)):
-            name = DOCK_IMAGE_NAME_BTC + "." + str(i+1)
+            name = DOCK_CONTAINER_NAME_PREFIX_BTC + "." + str(i+1)
             containers.run(
                 DOCK_IMAGE_NAME_BTC,
                 "/etc/init.d/script_import.sh",
@@ -638,7 +646,6 @@ def create_behvnode_gan(client, number=1, index = 1, prefix_behv=DOCK_CONTAINER_
             name=name,
             detach=True,
             network=DOCK_NETWORK_NAME_BTC)
-        time.sleep(5)
         #if(retrive_network(client,DOCK_NETWORK_NAME_ZCH)):
         #    id_net=get_network_id(client,DOCK_NETWORK_NAME_ZCH)
         #    net=client.networks.get(id_net)

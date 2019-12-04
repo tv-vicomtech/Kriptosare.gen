@@ -9,6 +9,7 @@ from connection import *
 import logging
 from random import randint
 import time
+import datetime
 from getopt import getopt
 from mysocket import *
 
@@ -25,6 +26,12 @@ def tool_bar(tt):
         sys.stdout.flush()
 
     sys.stdout.write("]\n") # this ends the progress bar
+
+def starting_generator(client):
+    containers = client.containers.list()
+    for uuid in containers:
+        uuid.exec_run("python /root/lib/generate_destination.py &",detach=True)
+
 
 def docker_setup(build_image=True, create_docker_network=True, remove_existing=True):
     """
@@ -65,7 +72,7 @@ if __name__ == '__main__':
         remove = True
 
     client = docker_setup(build_image=True, create_docker_network=False, remove_existing=False)
-    G= nx.read_graphml('../graphml/model/model0_10.graphml')
+    G= nx.read_graphml('../graphml/model/model0_250.graphml')
 
     nodelist=[]
     print("***************************")
@@ -79,8 +86,17 @@ if __name__ == '__main__':
     number_mxr = 0
     number_ser = 0
     number=len(G.nodes) - number_pool - number_ser - number_ex - number_mrk - number_cas - number_mxr
+    
+    block_container=10
+    modul=number//block_container
+    print(datetime.datetime.now())
+    for i in range(0,modul):
+        create_node_nocmd(client, DOCK_NETWORK_NAME_BTC, i*block_container, (i+1)*block_container)
 
-    create_node(client, DOCK_NETWORK_NAME_BTC, "btc", number)
+    rest=number-(modul*block_container)
+    if(rest!=0):
+        create_node_nocmd(client, DOCK_NETWORK_NAME_BTC, modul*block_container,number)
+
     if(number_ex>0):
         create_behvnode_gan(client, number_ex, 1, DOCK_CONTAINER_NAME_PREFIX_EX) #mixer
     if(number_cas>0):
@@ -94,11 +110,8 @@ if __name__ == '__main__':
     if(number_ser>0):
         create_behvnode_gan(client, number_ser, 6, DOCK_CONTAINER_NAME_PREFIX_SER) #mixer
 
-
+    print(datetime.datetime.now())
     print("Containers created")
-    print("Wait 120 seconds...")
-    tool_bar(120)
-    nodelist = get_containers_names(client, fixname)
-    connection_from_graph(client,G,nodelist,fixname,"btc",number_ex,number_cas,number_mrk,number_pool,number_mxr,number_ser)
-    print("End Connections")
-    
+    print("Wait 300 seconds...")
+    tool_bar(300)
+    print("End!")

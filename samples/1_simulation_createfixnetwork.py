@@ -77,15 +77,15 @@ def import_configuration(client, nodel):
             print("No DB...error")
 
     for uuid in containers:
-        uuid.exec_run("bitcoin-cli importwallet '/root/.bitcoin/walletdump' &")
+        uuid.exec_run("bitcoin-cli importwallet '/root/.bitcoin/walletdump' &",detach=True)
         #rpc_call(client,nodelist[i],"importwallet","'/root/.bitcoin/walletdump'")
 
 
 def starting_generator(client):
     containers = client.containers.list()
     for uuid in containers:
-        uuid.exec_run("python /root/lib/generate_destination.py &")
-    print("END")
+        uuid.exec_run("python /root/lib/generate_destination.py &",detach=True)
+
 
 if __name__ == '__main__':
 
@@ -100,7 +100,7 @@ if __name__ == '__main__':
         network = True
         remove = True
 
-    client = docker_setup(build_image=False, create_docker_network=False, remove_existing=False)
+    client = docker_setup(build_image=True, create_docker_network=False, remove_existing=False)
     G= nx.read_graphml('../graphml/model/model0_10.graphml')
 
     nodelist=[]

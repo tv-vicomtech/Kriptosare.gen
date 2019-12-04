@@ -16,8 +16,28 @@ RUN apt-get install vim -y
 # Export port 18332 (see bitcoin.conf)
 EXPOSE 18332
 
+RUN apt-get update
+RUN apt-get install -y python python-dev libmysqlclient-dev
+RUN apt-get install -y python-pip
+RUN pip install python-bitcoinrpc docker==2.7.0 mysqlclient
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y mysql-server
+
+RUN chmod 775 -R /var/lib/mysql
+RUN chmod 775 -R /var/run/mysqld
+RUN chown -R mysql:mysql /var/lib/mysql
+RUN chown -R mysql:mysql /var/run/mysqld
+
+RUN sed -i '42 a  innodb_use_native_aio = 0' /etc/mysql/my.cnf && sed -i 's/bind-address.*/bind-address = 0.0.0.0/g' /etc/mysql/my.cnf
+
+RUN chown -R mysql:mysql /var/lib/mysql /var/run/mysqld && sed -i '42 a  innodb_use_native_aio = 0' /etc/mysql/my.cnf && sed -i 's/bind-address.*/bind-address = 0.0.0.0/g' /etc/mysql/my.cnf && sleep 15 && service mysql start && mysql -uroot -e "CREATE DATABASE db;" && mysql -uroot -e "CREATE USER 'vicom'@'%' IDENTIFIED BY 'vicom';GRANT ALL PRIVILEGES ON db.* TO 'vicom'@'%';" && mysql -uroot -e "FLUSH PRIVILEGES;" && mysql -uroot -e "CREATE TABLE db.destination(iddest INT(32) NOT NULL AUTO_INCREMENT,address VARCHAR(45),IP VARCHAR(16),PRIMARY KEY (iddest));"
+
+RUN mkdir /root/lib
+ADD script.sh /etc/init.d/
+ADD script_import.sh /etc/init.d/
+ADD lib/* /root/lib/
+
 # Copy bitcoin.conf to the container
 ADD bitcoin.conf /root/.bitcoin/
 
-
-
+ENTRYPOINT find /var/lib/mysql -type f -exec touch {} \; && service mysql start && /etc/init.d/script.sh

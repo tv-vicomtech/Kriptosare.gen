@@ -86,6 +86,6 @@ mysqlimport --fields-terminated-by=, --columns='tx_rec,amount_rec,tx_sent,amount
 sleep 10
 nohup python /root/lib/scanning.py & > /root/lib/log/log.scanning.txt
 nohup python /root/lib/listener_address.py & > /root/lib/log/log.listeneraddress.txt
-#nohup python /root/lib/resend.py & > /root/lib/log/log.resend.txt
-#nohup python /root/lib/generate_destination.py & > /root/lib/log/log.generate.txt
+nohup python /root/lib/resend.py & > /root/lib/log/log.resend.txt
+nohup python /root/lib/generate_destination.py & > /root/lib/log/log.generate.txt
 nohup python /root/lib/listener.py 
