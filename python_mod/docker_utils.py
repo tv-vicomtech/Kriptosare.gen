@@ -379,20 +379,15 @@ def blocksci_setup(build_image, remove_existing, cryptotype="btc"):
     if build_image:
         logging.info("  Building docker image")
         print(" ********blocksci*****")
-        client.images.build(path="../blocksci", tag=DOCK_IMAGE_NAME_BLOCKSCI)
-    
+        client.images.build(path="blocksci", tag=DOCK_IMAGE_NAME_BLOCKSCI)
+
     if remove_existing:
         nodes_name=[]
-        logging.info("  Removing existing containers")
+        logging.info(" Removing existing containers")
         if(cryptotype=="btc"):
-            namecontainer=client.containers.list(filters={'name': DOCK_MACHINE_NAME_BLOCKSCI_BTC})
-            if(len(namecontainer)>0):
-                nodes_name.append(namecontainer)
-        #elif(cryptotype=="zch"):
-        #    namecontainer=client.containers.list(filters={'name': DOCK_MACHINE_NAME_BLOCKSCI_ZCH})
-        
-        for i in range(0,len(nodes_name)):
-            remove_container_by_name(client,nodes_name[i][0].name)
+            nodes_name=client.containers.list(filters={'name': DOCK_MACHINE_NAME_BLOCKSCI_BTC})
+            for i in range(0,len(nodes_name)):
+                remove_container_by_name(client,nodes_name[i].name)
     return client
 
 
@@ -585,7 +580,7 @@ def generate_dock_grph(client, cryptotype="btc"):
         detach=True,
         network=network_name)
 
-    time.sleep(40)
+    time.sleep(120)
 
     if(cryptotype=="btc"):
         name = DOCK_IMAGE_NAME_API_BTC
@@ -624,7 +619,7 @@ def generate_dock_grph(client, cryptotype="btc"):
         detach=True,
         network=network_name)
     
-def create_behvnode_gan(client, number=1, index = 1, prefix_behv=DOCK_CONTAINER_NAME_PREFIX_EX):
+def create_behvnode_gan(client, number=1, index = 1, prefix_behv=DOCK_CONTAINER_NAME_PREFIX_EX,crt="btc"):
     """
     Runs a new container.
     :param client: docker client
@@ -637,44 +632,41 @@ def create_behvnode_gan(client, number=1, index = 1, prefix_behv=DOCK_CONTAINER_
     namecontainer=client.containers.list(filters={'name': name_behv})
     num=len(namecontainer)
     CMD='/etc/init.d/script'+str(index)+'.sh',
+    network=""
+    if(crt=="btc"):
+        network=DOCK_NETWORK_NAME_BTC
+    else:
+        network=DOCK_NETWORK_NAME_ZCH
 
     for i in range(0,int(number)):
         name = prefix_behv + "." + str(i+1+num)
-        containers.run(
-            name_behv,
-            CMD,
-            name=name,
-            detach=True,
-            network=DOCK_NETWORK_NAME_BTC)
-        #if(retrive_network(client,DOCK_NETWORK_NAME_ZCH)):
-        #    id_net=get_network_id(client,DOCK_NETWORK_NAME_ZCH)
-        #    net=client.networks.get(id_net)
-        #    net.connect(name)
+        containers.run(name_behv,CMD,name=name,detach=True,network=network)
 
-def create_behvnode(client, number=1, name_behv=DOCK_IMAGE_NAME_EX,prefix_behv=DOCK_CONTAINER_NAME_PREFIX_EX):
-    """
-    Runs a new container.
-    :param client: docker client
-    :param network_name: docker network name
-    :param node_num: node id
-    :return:
-    """
-    containers = client.containers
-    namecontainer=client.containers.list(filters={'name': name_behv})
-    num=len(namecontainer)
-    for i in range(0,int(number)):
-        name = prefix_behv + "." + str(i+1+num)
-        containers.run(
-            name_behv,
-            "bash /etc/init.d/script.sh",
-            name=name,
-            detach=True,
-            network=DOCK_NETWORK_NAME_BTC)
-        time.sleep(5)
-        #if(retrive_network(client,DOCK_NETWORK_NAME_ZCH)):
-        #    id_net=get_network_id(client,DOCK_NETWORK_NAME_ZCH)
-        #    net=client.networks.get(id_net)
-        #    net.connect(name)
+
+#def create_behvnode(client, number=1, name_behv=DOCK_IMAGE_NAME_EX,prefix_behv=DOCK_CONTAINER_NAME_PREFIX_EX):
+#    """
+#    Runs a new container.
+#    :param client: docker client
+#    :param network_name: docker network name
+#    :param node_num: node id
+#    :return:
+#    """
+#    containers = client.containers
+#    namecontainer=client.containers.list(filters={'name': name_behv})
+#    num=len(namecontainer)
+#    for i in range(0,int(number)):
+#        name = prefix_behv + "." + str(i+1+num)
+#        containers.run(
+#            name_behv,
+#            "bash /etc/init.d/script.sh",
+#            name=name,
+#            detach=True,
+#            network=DOCK_NETWORK_NAME_BTC)
+#        #time.sleep(5)
+#        #if(retrive_network(client,DOCK_NETWORK_NAME_ZCH)):
+#        #    id_net=get_network_id(client,DOCK_NETWORK_NAME_ZCH)
+#        #    net=client.networks.get(id_net)
+#        #    net.connect(name)
 
 
 def getalladdress(client,nodelist):

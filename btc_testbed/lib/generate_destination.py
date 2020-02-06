@@ -28,9 +28,9 @@ if __name__ == '__main__':
 	end=False
 	lenght=0
 	add=[]
-	maxi=100000
+	maxi=120000
 	cur = db.cursor()
-	while(True):
+	while(lenght<=maxi):
 		try:
 			nn=rpc_call(client, ip, "getnewaddress","''")
 		except:
@@ -45,5 +45,5 @@ if __name__ == '__main__':
 			f.write(str(nn)+","+str(ip)+"\n")
 			f.close()
 			lenght=lenght+1
-		if(lenght>=maxi):
-			rpc_call(client,ip,"dumpwallet","'walletdump'")
+		#if(lenght>=maxi):
+		#	rpc_call(client,ip,"dumpwallet","'walletdump'")

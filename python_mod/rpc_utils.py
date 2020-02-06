@@ -106,6 +106,7 @@ def rpc_create_connection(client, source, dest,crypto="btc",
         if(crypto=="btc"):
             rpc_server = get_ip_by_unknown(client, source)
             dest = get_ip_by_unknown(client, dest)
+
             rpc_port=BTC_RPC_PORT
             #print rpc_user+" "+rpc_password+" "+rpc_server+ " "+str(rpc_port)+ " "+dest
             rpc_connection = AuthServiceProxy("http://%s:%s@%s:%s" % (rpc_user, rpc_password, rpc_server, rpc_port))
@@ -356,7 +357,7 @@ def rpc_call_newaddress(client,source,cryptotype="btc"):
 def rpc_call_listunspent(client,source,cryptotype="btc"):
     listunspent=""
     if(cryptotype=="btc"):
-        listunspent=rpc_call(client, source, "listunspent","")
+        listunspent=rpc_call(client, source, "listunspent")
     elif(cryptotype=="zch"):
         listunspent=rpc_call(client, source, "listunspent","",ZCH_RPC_USER, ZCH_RPC_PASSWD,ZCH_RPC_PORT)
     return listunspent

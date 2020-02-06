@@ -88,7 +88,7 @@ $(document).ready(function(){
       <img src="../static/img/shield.png" class="rounded" style="margin-left:30px;width:40%" alt="Titanium img">
       </th>
      <th scope="col"><center>
-      <h2 class="h2">Dockerized Cryptocurrencies Testbed Simulator</h2></center>
+      <h2 class="h2">Kriptosare: Cryptocurrencies Testbed Simulator</h2></center>
       </th>
       <th scope="col" style="width:15%">
       <img src="../static/img/logo.png" class="rounded" style="width:100%" alt="Vicomtech img">

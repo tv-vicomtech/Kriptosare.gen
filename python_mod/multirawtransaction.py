@@ -62,98 +62,100 @@ def transactions_nin_nout(client,destiny,origen,cryptotype,new):
             #print "FALSE --- "+str(addr)
     #for out in addr:
     #    print out
-
-    unspended = rpc_call_listunspent(client,origen,cryptotype)
-    cont = len(unspended)
-    #print "......................................................"
-    #print "unspend= "+str(cont)
-    amountotal = 0
-    fee=0.003320
-    if cont < 1:
-        allin = False
-    else:
-        #if (cont<5):
-        if (cont<3):
-            n_inputs = randint(1,cont)
-        else:
-            n_inputs = randint(1,5)
-        n_inputs=1
-        n_outputs = len(destiny)
-
-        #print "N {} input M {} output".format(n_inputs,n_outputs)
-
-        allin = True
-
-        fee = (n_inputs * 148 + n_outputs * 34 + 10) * price_per_byte
-        fee=0.000332
-        minfee=0.00001
+    try:
+        unspended = rpc_call_listunspent(client,origen,cryptotype)
+        cont = len(unspended)
         #print "......................................................"
-        #print "fee= "+str(fee)
-        amountotal=0
-        c_iter=0
-        while(c_iter<n_inputs):
-            index = cont-1-c_iter
-            txid.append(unspended[index]["txid"])   
-            amount.append(unspended[index]["amount"])
-            txaddr = unspended[index]["address"]
-            pubKey.append(unspended[index]["scriptPubKey"])
-            nvout.append(unspended[index]["vout"])
-            dpk=rpc_call_dumpprivkey(client,origen,txaddr,cryptotype)
-            privkey.append(dpk)
-            amountotal=amountotal+unspended[index]["amount"]
-            c_iter=c_iter+1
-
-    if(amountotal>0.00001000):
-        #print "amountotal ="+str(amountotal)
-        #print "fee ="+str(fee)
-        if(amountotal>Decimal(fee)):
-            amountotal=amountotal-Decimal(fee)
+        #print "unspend= "+str(cont)
+        amountotal = 0
+        fee=0.003320
+        if cont < 1:
+            allin = False
         else:
-            amountotal=amountotal-Decimal(minfee)
-        #print "amountotal ="+str(amountotal)
+            #if (cont<5):
+            if (cont<3):
+                n_inputs = randint(1,cont)
+            else:
+                n_inputs = randint(1,5)
+            n_inputs=1
+            n_outputs = len(destiny)
 
-        #print allin
-        if allin is True: 
-            checkfee=False
-            num=0
-            send1=[]
-            while(not checkfee):
-                del send1[:]
-                amountotald = Decimal(amountotal)- Decimal(num*price_per_byte)
-                send=Decimal(amountotald/n_outputs)            
-                send1.append(round(send, 8))
+            #print "N {} input M {} output".format(n_inputs,n_outputs)
 
-                for idx in range(1,n_outputs):
-                    send=Decimal(amountotald/n_outputs)
+            allin = True
+
+            fee = (n_inputs * 148 + n_outputs * 34 + 10) * price_per_byte
+            fee=0.000332
+            minfee=0.00001
+            #print "......................................................"
+            #print "fee= "+str(fee)
+            amountotal=0
+            c_iter=0
+            while(c_iter<n_inputs):
+                index = cont-1-c_iter
+                txid.append(unspended[index]["txid"])   
+                amount.append(unspended[index]["amount"])
+                txaddr = unspended[index]["address"]
+                pubKey.append(unspended[index]["scriptPubKey"])
+                nvout.append(unspended[index]["vout"])
+                dpk=rpc_call_dumpprivkey(client,origen,txaddr,cryptotype)
+                privkey.append(dpk)
+                amountotal=amountotal+unspended[index]["amount"]
+                c_iter=c_iter+1
+
+        if(amountotal>0.00001000):
+            #print "amountotal ="+str(amountotal)
+            #print "fee ="+str(fee)
+            if(amountotal>Decimal(fee)):
+                amountotal=amountotal-Decimal(fee)
+            else:
+                amountotal=amountotal-Decimal(minfee)
+            #print "amountotal ="+str(amountotal)
+
+            #print allin
+            if allin is True: 
+                checkfee=False
+                num=0
+                send1=[]
+                while(not checkfee):
+                    del send1[:]
+                    amountotald = Decimal(amountotal)- Decimal(num*price_per_byte)
+                    send=Decimal(amountotald/n_outputs)            
                     send1.append(round(send, 8))
-                checkfee=feeCorrect(send1,amountotal)
-                num=num+1
 
-            transin = '['
-            for idx in range(0,n_inputs):
-                transin = transin+'{"txid":"' + txid[idx] + '","vout":'+str(nvout[idx])+'}'
-                if idx<(n_inputs-1):
-                    transin=transin+','
-            transin=transin+']'
+                    for idx in range(1,n_outputs):
+                        send=Decimal(amountotald/n_outputs)
+                        send1.append(round(send, 8))
+                    checkfee=feeCorrect(send1,amountotal)
+                    num=num+1
 
-            transout = '{"'
-            for idx in range(0,n_outputs):
-                transout = transout+addr[idx]+'":'+str(send1[idx])
-                if idx<(n_outputs-1):
-                    transout=transout+', "'
-            transout=transout+'}'
-            allowhighfees = True
-            transtot = transin + "," + transout
-            #print transtot
-            rawtx=rpc_call_createrawtransaction(client,origen,transtot,cryptotype)
+                transin = '['
+                for idx in range(0,n_inputs):
+                    transin = transin+'{"txid":"' + txid[idx] + '","vout":'+str(nvout[idx])+'}'
+                    if idx<(n_inputs-1):
+                        transin=transin+','
+                transin=transin+']'
 
-            if(rawtx!=False):
-                params = "'"+str(rawtx)+"'"
-                signrawtx=rpc_call_signrawtransaction(client,origen,params,cryptotype)
-                hextx = signrawtx["hex"]
+                transout = '{"'
+                for idx in range(0,n_outputs):
+                    transout = transout+addr[idx]+'":'+str(send1[idx])
+                    if idx<(n_outputs-1):
+                        transout=transout+', "'
+                transout=transout+'}'
                 allowhighfees = True
-                rawtrans = "'"+str(hextx)+"'"
-                rtxid=rpc_call_sendrawtransaction(client,origen,rawtrans,cryptotype)
+                transtot = transin + "," + transout
+                #print transtot
+                rawtx=rpc_call_createrawtransaction(client,origen,transtot,cryptotype)
+
+                if(rawtx!=False):
+                    params = "'"+str(rawtx)+"'"
+                    signrawtx=rpc_call_signrawtransaction(client,origen,params,cryptotype)
+                    hextx = signrawtx["hex"]
+                    allowhighfees = True
+                    rawtrans = "'"+str(hextx)+"'"
+                    rtxid=rpc_call_sendrawtransaction(client,origen,rawtrans,cryptotype)
+    except:
+        print("NO TX")
 
 def create_raw_transaction(client,destiny,origen,amounttosend,new=True, inaddress=None, outaddress=None):
     nvout=[]
@@ -554,7 +556,7 @@ def generaterandomtransaction(client,nodelist,cryptotype,howmanyblock):
     totalblock=0
     totalblock=rpc_call_blockcount(client,nodelist[0],cryptotype)
     blcknum=0
-    miningNumber=randint(40,150)
+    miningNumber=randint(20,40)
     while(blcknum<howmanyblock):
         print("transaction:"+str(txnum))
         origen=[]
@@ -564,7 +566,11 @@ def generaterandomtransaction(client,nodelist,cryptotype,howmanyblock):
         if r < 7:
             s = randint(0,len(nodelist)-1)
             source = nodelist[s]
-            amount = rpc_call_balance(client,source,cryptotype)
+            try:
+                amount = rpc_call_balance(client,source,cryptotype)
+            except:
+                print("NO TX")
+                amount = 0
             d = randint(0,len(nodelist)-1)
             while(s==d):
                 d = randint(0,len(nodelist)-1)
@@ -573,7 +579,7 @@ def generaterandomtransaction(client,nodelist,cryptotype,howmanyblock):
                 dest=rpc_call_newaddress(client,nodelist[d],cryptotype)
                 
                 if(amount>0.0000100):
-                    ran=random()*float(amount)
+                    ran=random.random()*float(amount)
                     amount_random=round(ran, 8)
                 else:
                     amount_random=amount
@@ -595,6 +601,7 @@ def generaterandomtransaction(client,nodelist,cryptotype,howmanyblock):
             destiny = rand_list(nodelist,n_out)
             transactions_nin_nout(client,destiny,origen,cryptotype,True)
             txnum +=1
+        time.sleep(2)
         if(txnum==miningNumber):
             print("******Mining a new block*****")
             time.sleep(2)
@@ -816,9 +823,15 @@ def mining_blocks(client,source,cryptotype,num_to_gen):
     numberblock = str(num_to_gen)
     msg=[]
     if(cryptotype=="btc") :
-        rpc_call(client, source, 'generate', numberblock)
+        try:
+            rpc_call(client, source, 'generate', numberblock)
+        except:
+            return "no block mined"
     elif(cryptotype=="zch"):
-        rpc_call(client, source, 'generate', numberblock,ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
+        try:
+            rpc_call(client, source, 'generate', numberblock,ZCH_RPC_USER, ZCH_RPC_PASSWD, ZCH_RPC_PORT)
+        except:
+            return "no block mined"
     time.sleep(3)
 
     msg.append(numberblock+" blocks are generated")

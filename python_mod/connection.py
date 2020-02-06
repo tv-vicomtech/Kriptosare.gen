@@ -141,10 +141,8 @@ def swapfromlist_graph(client,G, list_to_remove,connection_address,destination,c
     return False
 
 def random_connection_container(client,nodelist,fixname,cryptomoney="btc", connection_number=2):
-    time.sleep(5)
     connection_number=int(connection_number)
     
-    time.sleep(5)
     if(connection_number>=125):
         connection_number=125
     threshold=2*(len(nodelist)-1)
@@ -294,24 +292,25 @@ def findaddress(connection_address,source,destination):
 def random_connection_element(client,nodelist,nodes_name,fixname,cryptomoney="btc"):
     alreadyadd=[]
     source=nodes_name
-
     if(len(nodelist)>9):
         connection_number=8
     else:
-        connection_number=len(nodelist)
+        connection_number=len(nodelist)-1
 
     for i in range(0,connection_number):
         find=True
-        idx=randint(1, len(nodelist))
+        idx=randint(1, len(nodelist)+1)
         while(find):
             destination=fixname+str(idx)
             if(source != destination):
                 if(destination not in alreadyadd):
                     print(source+" "+destination)
                     r = rpc_create_connection(client,source ,destination ,cryptomoney)
+                    time.sleep(1)
                     alreadyadd.append(destination)
                     find=False
             idx=(idx)%(len(nodelist))+1
+    return True
 
 def random_connection_element_forexchange(client,nodelist,nodes_name,fixname,cryptomoney="btc"):
     alreadyadd=[]

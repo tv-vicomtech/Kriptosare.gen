@@ -50,17 +50,18 @@ def create_network():
 	message=[]
 	client = docker_setup(cryptotype)
 	if(cryptotype=="btc"):
-		fixname=DOCK_CONTAINER_NAME_PREFIX_BTC+"."
-		create_node(client, DOCK_NETWORK_NAME_BTC, cryptotype, numbernodes)
+		fixname=DOCK_CONTAINER_NAME_PREFIX_BTC
+		create_behvnode_gan(client, numbernodes, 1, fixname,cryptotype)
 	elif(cryptotype=="zch"):
-		fixname=DOCK_CONTAINER_NAME_PREFIX_ZCH+"."
-		create_node(client, DOCK_NETWORK_NAME_ZCH, cryptotype, numbernodes)
+		fixname=DOCK_CONTAINER_NAME_PREFIX_ZCH
+		create_behvnode_gan(client, numbernodes, 1, fixname ,cryptotype)
 	
-	time.sleep(15)
+	time.sleep(60)
 
 	nodelist=get_containers_names(client, fixname)
-
-	random_connection_container(client,nodelist,fixname,cryptotype, numberconn)
+	for i in range(0, len(nodelist)):
+		random_connection_element(client,nodelist,nodelist[i],fixname+".",cryptotype)
+	#random_connection_container(client,nodelist,fixname,cryptotype, numberconn)
 
 	message.append("********************")
 	message.append(str(numbernodes)+" "+cryptotype+" created")
@@ -139,7 +140,8 @@ def generate_blocks():
 
 	else:
 		if(opt_empty_random=="Y"):
-			info=send_money_to_all(client,nodelist,cryptotype)
+			info=send_money_to_all(client,nodelist[0],nodelist,cryptotype)
+			#info=send_money_to_all(client,nodelist,cryptotype)
 		else:
 			info.append("No blocks created")
 
@@ -366,7 +368,8 @@ def generate_blocksci(cryptotype="btc"):
 		client=blocksci_setup(True, True, cryptotype)
 	#elif(cryptomoney=="zch"):
 		#client=blocksci_setup(True, True, cryptotype="zch")
-	generate_dock_blocksci(client,cryptotype)
+	time.sleep(30)
+	generate_dock_blocksci(client)
 
 	if(cryptotype=="btc"):
 		fixname=DOCK_CONTAINER_NAME_PREFIX_BTC+"."
@@ -374,10 +377,12 @@ def generate_blocksci(cryptotype="btc"):
 	#elif(cryptotype=="zch"):
 	#	fixname=DOCK_CONTAINER_NAME_PREFIX_ZCH+"."
 	#	nodelist=get_containers_names(client, fixname)
-	time.sleep(5)
+	time.sleep(30)
 
 	if(cryptotype=="btc"):
-		random_connection_element(client,nodelist,DOCK_MACHINE_NAME_BLOCKSCI_BTC,fixname,cryptotype)
+		nodes_name_blocksci=client.containers.list(filters={'name': 'btc_blocksci'})
+		random_connection_element(client,nodelist,nodes_name_client[0].name,fixname,"btc")
+
 	#elif(cryptotype=="zch"):
 	#	random_connection_dash(client,nodelist,DOCK_MACHINE_NAME_BLOCKSCI_BTC,num_conn)
 	message.append("********************")
@@ -406,10 +411,11 @@ def generate_statoshi(cryptotype="btc"):
 		num_conn=8
 	else:
 		num_conn=len(nodelist)
-	time.sleep(5)
+	time.sleep(30)
 
 	if(cryptotype=="btc"):
-		random_connection_element(client,nodelist,DOCK_IMAGE_NAME_STATOSHI,fixname,cryptotype)
+		nodes_name_statoshi=client.containers.list(filters={'name': 'btc_statoshi'})
+		random_connection_element(client,nodelist,nodes_name_statoshi[0].name,fixname,"btc")
 	#elif(cryptotype=="zch"):
 	#	random_connection_dash(client,nodelist,DOCK_IMAGE_NAME_STATOSHI,num_conn)
 	message.append("********************")
@@ -436,9 +442,10 @@ def generate_graphsense(cryptotype="btc"):
 		num_conn=8
 	else:
 		num_conn=len(nodelist)
-	time.sleep(5)
+	time.sleep(30)
 	if(cryptotype=="btc"):
-		random_connection_element(client,nodelist,DOCK_IMAGE_NAME_CLIENT_BTC,fixname,cryptotype)
+		nodes_name_client=client.containers.list(filters={'name': 'btc_client'})
+		random_connection_element(client,nodelist,nodes_name_client[0].name,fixname,"btc")
 	elif(cryptotype=="zch"):
 		random_connection_element(client,nodelist,DOCK_IMAGE_NAME_CLIENT_ZCH,fixname,cryptotype)
 
