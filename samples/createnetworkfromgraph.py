@@ -76,35 +76,16 @@ if __name__ == '__main__':
     fixname=DOCK_CONTAINER_NAME_PREFIX_BTC+"."
     number=len(G.nodes)
 
-    number_pool = 1
-    number_ex = 1
-    number_cas = 1
-    number_mrk = 1
-    number_mxr = 1
-    number_ser = 1
-    number=len(G.nodes) - number_pool - number_ser - number_ex - number_mrk - number_cas - number_mxr
+    number=len(G.nodes)
 
     create_node_import(client, DOCK_NETWORK_NAME_BTC, "btc", number)
-
-    if(number_ex>0):
-        create_behvnode_gan(client, number_ex, 1, DOCK_CONTAINER_NAME_PREFIX_EX) #mixer
-    if(number_cas>0):
-        create_behvnode_gan(client, number_cas, 2, DOCK_CONTAINER_NAME_PREFIX_CAS) #mixer
-    if(number_mrk>0):
-        create_behvnode_gan(client, number_mrk, 3, DOCK_CONTAINER_NAME_PREFIX_MRK) #mixer
-    if(number_pool>0):
-        create_behvnode_gan(client, number_pool, 4, DOCK_CONTAINER_NAME_PREFIX_POOL) #mixer
-    if(number_mxr>0):
-        create_behvnode_gan(client, number_mxr, 5, DOCK_CONTAINER_NAME_PREFIX_MXR) #mixer
-    if(number_ser>0):
-        create_behvnode_gan(client, number_ser, 6, DOCK_CONTAINER_NAME_PREFIX_SER) #mixer
 
 
     print("Containers created")
     tool_bar(120)
 
     print("Start connection")
-    connection_from_graph(client,G,nodelist,fixname,"btc",number_ex,number_cas,number_mrk,number_pool,number_mxr,number_ser)
+    connection_from_graph(client,G,nodelist,fixname,"btc")
     print("***************************")
     #plt.show()
     print("Done")
